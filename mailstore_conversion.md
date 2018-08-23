@@ -60,6 +60,3 @@ up the destination folders itself, directly to the filesystem
 (and restart Thunderbird to switch over).
 
 
-
-
-hard-code the destination

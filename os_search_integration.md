@@ -19,10 +19,13 @@ but the OS search mechanism can't distinguish individual emails.
 As a workaround, when OS search integration is turned on, thunderbird creates an
 extra directory, with a `.mozmsgs` extension.
 Thunderbird mirrors indexable data for each email there, one file per email.
+
 On OSX, the `.mozmsgs` dir is out in `~/Library/Caches/Metadata/Thunderbird/...`,
 not within the normal Profile directory tree.
+
 On Windows, the `.mozmsgs` directory is placed in the same location as
 the folder it's representing.
+
 See [bug 856087 - mbox to maildir conversion does not work if "Allow Windows Search to search messages" is enabled, chokes on mozmsgs folders](https://bugzilla.mozilla.org/show_bug.cgi?id=856087).
 
 For OSX spotlight, a `.mozeml` file is created under `.mozmsgs` for each email.
@@ -33,7 +36,8 @@ Spotlight uses it to parse `.mozeml` files, returning a dictionary of metadata
 to add to the index.
 
 For windows search, `.wdseml` files are created under `.mozmsgs`.
-(TODO: what format is the `.wdseml` file?)
+
+TODO: what format is the `.wdseml` file?
 
 TODO: links here to code which generates .wdseml and .mozeml files
 
@@ -46,10 +50,12 @@ Since Thunderbird has registered these file extensions, the user can
 just double-click one of them to see the associated mail in Thunderbird. The OS will invoke Thunderbird, passing in the clicked file as a commandline parameter.
 Thunderbird sees that it's a `.mozeml`/`.wdseml`, looks up the email
 it represents, and jumps to it.
+
 (TODO: confirm that this is what happens!)
+
 (TODO: look at the startup code, give link to source here)
 
-## THOUGHTS
+## Thoughts
 
 If `.mozeml` and `.wdseml` files both contain the whole message (which
 they kind of need to, for full indexing), could they just be replaced by
@@ -73,13 +79,10 @@ TODO: does it make sense to use `.emlx` on OSX instead of our custom `.mozeml` f
 TODO: can Spotlight index files in a maildir? (ie under the normal user profile?)
 or can it only index stuff under `~/Library/Caches/...`?
 
-Related:
+## Related links:
 
-[Bug 290057 - Thunderbird should integrate with the Spotlight Search](https://bugzilla.mozilla.org/show_bug.cgi?id=290057)
-
-[Bug 430614 - (GSoC) Thunderbird integration into Windows Vista/Windows Search indexer](https://bugzilla.mozilla.org/show_bug.cgi?id=430614)
-
-[Spotlight docs](https://developer.apple.com/documentation/corespotlight)
-
-TODO: add link to windows search docs
+* [Bug 290057 - Thunderbird should integrate with the Spotlight Search](https://bugzilla.mozilla.org/show_bug.cgi?id=290057)
+* [Bug 430614 - (GSoC) Thunderbird integration into Windows Vista/Windows Search indexer](https://bugzilla.mozilla.org/show_bug.cgi?id=430614)
+* [Spotlight docs](https://developer.apple.com/documentation/corespotlight)
+* TODO: add link to windows search docs
 
