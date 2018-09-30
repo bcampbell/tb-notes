@@ -1,13 +1,6 @@
+# Folders
 
-
-
-
-
-
-
-
-
-# nsIMsgFolder
+## nsIMsgFolder
 
 `comm/mailnews/base/public/nsIMsgFolder.idl`
 
@@ -29,7 +22,15 @@ summaryFile (the .msf file)
 
 TODO: how do summaryFile and msgDatabase interact?
 
-# nsMsgDBFolder
+implementations (via nsMsgDBFolder):
+- nsImapMailFolder
+- nsMsgLocalMailFolder
+- nsMsgNewsFolder
+- JaBaseCppMsgFolder
+
+## nsMsgDBFolder
+
+`comm/mailnews/base/util/nsMsgDBFolder.h`
 
 inherits from:
 - nsRDFResource
@@ -48,8 +49,10 @@ nsIMsgDatabase...
 msgStore attribute is implmented to just pass through the nsIMsgPluggableStore
 of the server.
 
+nsMsgDBFolder defines the location for the summary (.msf) file.
+see GetSummaryFile()
 
-# nsImapMailFolder
+## nsImapMailFolder
 
 `comm/mailnews/imap/src/nsImapMailFolder.h`
 
@@ -63,9 +66,44 @@ inherits:
 
 TODO: more details!
 
+There can be a .msf file, even without a folder directory.
+The folder is created on-demand, when a message is completely
+downloaded from the server and stored locally.
+The .msf file alone is enough to display the list of messages in the gui.
+
+## nsIMsgLocalMailFolder
+
+`comm/mailnews/local/public/nsIMsgLocalMailFolder.idl`
+
+assorted local-folder stuff... default flags for subfolders, helpers for
+creating local folders and wrangling messages...?
+
+## nsMsgLocalMailFolder
+
+`comm/mailnews/local/src/nsLocalMailFolder.h`
+
+inherits from nsMsgDBFolder, nsIMsgLocalMailFolder, nsICopyMessageListener
+
+used for both local folders and pop3?
+(also used as offline store for Imap folders???)
 
 
-# nsIMsgDatabase
+## nsIMsgNewsFolder
+
+`comm/mailnews/news/public/nsIMsgNewsFolder.idl`
+
+## nsMsgNewsFolder
+
+`comm/mailnews/news/src/nsNewsFolder.h`
+
+Inherits from nsMsgDBFolder, nsIMsgNewsFolder
+
+
+
+
+# Message Databases
+
+## nsIMsgDatabase
 
 inherits from: nsIDBChangeAnnouncer
 
@@ -92,42 +130,31 @@ has methods for adding, removing, iterating and searching nsIMsgDBHdrs.
  * What this module does not do is access individual messages. Access is
  * strictly controlled by the nsIMsgFolder objects and their backends.
 ```
-# nsMsgDatabase
+## nsMsgDatabase
 
-comm/mailnews/db/msgdb/public/nsMsgDatabase.h
+`comm/mailnews/db/msgdb/public/nsMsgDatabase.h`
 
 Only concrete implementation of `nsIMsgDatabase`?
 
 
-# nsIMsgDBService
+## nsIMsgDBService
 
 A service to open mail databases and manipulate listeners automatically.
 
 
-# nsIMsgDBHdr
+## nsIMsgDBHdr
 
 Common headers exposed as attributes (`messageId`, `subject` etc...)
 
 Can store general properties (indexed by string)
 
-# nsMsgHdr
+## nsMsgHdr
 
 Only concrete implementation of nsIMsgDBHdr?
 
 Knows about the `nsMsgDatabase`, and which row it occupies.
 
-# nsIMsgLocalMailFolder
-
-assorted local-folder stuff... default flags for subfolders, helpers for
-creating local folders and wrangling messages...?
-
-# nsMsgLocalMailFolder
-
-inherits from nsMsgDBFolder, nsIMsgLocalMailFolder, nsICopyMessageListener
-
-some helpers for pop3 download/storage?
-
-# nsIMsgIncomingServer
+## nsIMsgIncomingServer
 
 ```
 /*
@@ -144,8 +171,36 @@ base interface for:
 - nsNntpIncomingServer
 
 
+# Pluggable Mail Stores
 
-# nsIMsgPluggableStore
+## nsIMsgPluggableStore
+
+`comm/mailnews/base/public/nsIMsgPluggableStore.idl`
+
+background notes:
 
     https://wiki.mozilla.org/Thunderbird:Pluggable_Mail_Stores
+
+DeleteFolder: just deletes the actual file/folders. Not concerned with .msf files.
+
+current implementations are:
+
+- nsMsgBrkMBoxStore
+- nsMsgMaildirStore
+
+## nsMsgBrkMBoxStore
+
+`comm/mailnews/local/src/nsMsgBrkMBoxStore.h`
+
+Implements mbox storage.
+
+inherits: nsMsgLocalStoreUtils, nsIMsgPluggableStore
+
+## nsMsgMaildirStore
+
+`comm/mailnews/local/src/nsMsgMaildirStore.h`
+
+Implements maildir storage.
+
+inherits: nsMsgLocalStoreUtils, nsIMsgPluggableStore
 

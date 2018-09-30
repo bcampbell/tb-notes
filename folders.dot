@@ -1,0 +1,37 @@
+digraph G {
+
+node [shape=box, fillcolor=lightgrey, style="rounded,filled"];
+nsIMsgFolder;
+nsIDBChangeListener;
+nsIUrlListener;
+nsIJunkMailClassificationListener;
+nsIMsgTraitClassificationListener;
+nsIMsgLocalMailFolder;
+nsICopyMessageListener;
+nsIMsgImapMailFolder;
+nsIImapMailFolderSink;
+nsIImapMessageSink;
+nsICopyMessageListener;
+nsIMsgFilterHitNotify;
+nsIMsgNewsFolder;
+
+node [shape=box, fillcolor=none, style="rounded,filled"];
+nsMsgDBFolder -> nsRDFResource,
+                 nsSupportsWeakReference,
+                 nsIMsgFolder,
+                 nsIDBChangeListener,
+                 nsIUrlListener,
+                 nsIJunkMailClassificationListener,
+                 nsIMsgTraitClassificationListener
+nsMsgLocalMailFolder -> nsMsgDBFolder, nsIMsgLocalMailFolder, nsICopyMessageListener
+nsImapMailFolder -> nsMsgDBFolder,
+                          nsIMsgImapMailFolder,
+                          nsIImapMailFolderSink,
+                          nsIImapMessageSink,
+                          nsICopyMessageListener,
+                          nsIMsgFilterHitNotify
+
+nsMsgNewsFolder -> nsMsgDBFolder, nsIMsgNewsFolder
+
+
+}
