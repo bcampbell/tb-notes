@@ -32,3 +32,10 @@ To turn on logging:
 
 Also, `MOZ_LOG_FILE` to output to a file.
 
+# Force debug break in code:
+
+For intel 32/64 bit:
+
+      __asm__("int $3");
+
+

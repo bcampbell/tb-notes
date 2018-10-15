@@ -1,5 +1,16 @@
 # Folders
 
+TODO: more details here!
+
+TODO: discuss folder lookup service and folder creation
+`comm/mailnews/base/src/folderLookupService.js`
+
+Notes:
+- Virtual folders are just normal folders with the `Virtual` flag set.
+
+The folder type is determined by the incoming server type.
+ie nsImapIncomingServer servers always create nsImapMailFolder folders.
+
 ## nsIMsgFolder
 
 `comm/mailnews/base/public/nsIMsgFolder.idl`
@@ -170,6 +181,8 @@ base interface for:
 - nsPop3IncomingServer
 - nsNntpIncomingServer
 
+Q: do all folders have a nsIMsgIncomingServer? Even local folders?
+
 
 # Pluggable Mail Stores
 
@@ -203,4 +216,123 @@ inherits: nsMsgLocalStoreUtils, nsIMsgPluggableStore
 Implements maildir storage.
 
 inherits: nsMsgLocalStoreUtils, nsIMsgPluggableStore
+
+
+# IMAP
+
+## nsIMsgIncomingServer
+
+`comm/mailnews/base/public/nsIMsgIncomingServer.idl`
+
+```
+/*
+ * Interface for incoming mail/news host
+ * this is the base interface for all mail server types (imap, pop, nntp, etc)
+ * often you will want to add extra interfaces that give you server-specific
+ * attributes and methods.
+ */
+```
+
+nsIMsgIncomingServer has methods/attributes for things like:
+
+- prettyname
+- hostname/port/password
+- the nsIMsgPluggableStore to use
+- biff details
+- serverURI (uri for root mail folder)
+- root folder
+- filters
+- offline support level
+- assorted prefs and settings
+
+TODO: do local (non-pop3) folders have an incomingserver?
+
+"Deferred" accounts refer to accounts which share a global inbox,
+rather than having their own local folders.
+See: 
+    http://kb.mozillazine.org/Thunderbird_:_FAQs_:_Global_Inbox
+
+uri schemes:
+- "none"
+- "pop3"
+- "imap"
+- "rss"
+- "movemail" (behind #ifdef switch)
+- "nntp"
+
+## nsMsgIncomingServer
+
+Base class for common functions. Not for standalone use.
+
+Inherits:
+- nsIMsgIncomingServer
+- nsSupportsWeakReference
+- nsIObserver
+
+inherited by:
+- nsMailboxServer
+- nsNntpIncomingServer
+- JaBaseCppIncomingServer
+
+## nsImapIncomingServer
+
+Inherits:
+- nsMsgIncomingServer
+- nsIImapIncomingServer
+- nsIImapServerSink
+- nsISubscribableServer
+- nsIUrlListener
+
+uri scheme: "imap"
+
+Its `CreateRootFolder()` creates `nsImapMailFolder` type
+
+## nsMailboxServer
+
+Dummy no-nothing server for local folders?
+
+Inherits:
+- nsMsgIncomingServer
+
+Inherited by:
+- nsPop3IncomingServer
+
+
+implements only 3 functions:
+- `GetLocalStoreType()` - always `mailbox`
+- `GetDatabaseType()` - always `mailbox`
+- `CreateRootFolder()` - creates `nsMsgLocalMailFolder` type
+
+
+## nsPop3IncomingServer
+
+Inherits:
+- nsMailboxServer
+- nsIPop3IncomingServer
+- nsILocalMailIncomingServer
+
+uri scheme: "pop3"
+
+Doesn't implement it's own `CreateRootFolder()`, just uses
+`nsMailboxServer::CreateRootFolder()` which creates
+`nsLocalMailFolder`.
+
+## nsNntpIncomingServer 
+
+Its `CreateRootFolder()` creates `nsMsgNewsFolder` type
+
+# account manager
+
+##  nsMsgAccountManager
+
+`comm/mailnews/base/src/nsMsgAccountManager.h`
+
+inherits:
+- nsIMsgAccountManager
+- nsIObserver
+- nsSupportsWeakReference
+- nsIUrlListener
+- nsIFolderListener
+
+
 
