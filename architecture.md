@@ -11,6 +11,28 @@ Notes:
 The folder type is determined by the incoming server type.
 ie nsImapIncomingServer servers always create nsImapMailFolder folders.
 
+### folder creation
+
+incomingserver knows how to create it's own root folder.
+
+nsIMsgFolder defines:
+
+createSubfolder
+- for gui code to use
+- takes a window as param and may be async
+
+`addSubfolder` - adds a child folder
+- implemented by nsMsgDBFolder
+- nsImapMailFolder overrides with own implementation (used
+  only for virtual folders)
+- returns `NS_MSG_FOLDER_EXISTS` if child already exists
+- fiddles the child name for Inbox, unsent, draft, trash etc etc
+
+
+Virtual folders are created by:
+nsMsgAccountManager::LoadVirtualFolders()
+which loads `virtualFolders.dat` (by default. it's user-configurable)
+
 ## nsIMsgFolder
 
 `comm/mailnews/base/public/nsIMsgFolder.idl`
@@ -52,7 +74,7 @@ inherits from:
 - nsIJunkMailClassificationListener
 - nsIMsgTraitClassificationListener
 
-nsIMsgFolder implementation for folders that use an nsIMsgDatabase.
+base nsIMsgFolder implementation for folders that use an nsIMsgDatabase.
 
 Not sure there are any nsIMsgFolder implementations which _don't_ use a
 nsIMsgDatabase...
@@ -62,6 +84,10 @@ of the server.
 
 nsMsgDBFolder defines the location for the summary (.msf) file.
 see GetSummaryFile()
+
+Defines a virtual function, `CreateChildFromURI()` which is implemented
+by derived classes to create the right kind of new folder object.
+
 
 ## nsImapMailFolder
 
