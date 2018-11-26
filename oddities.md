@@ -28,5 +28,3 @@ Following:
 
     0:44.70 pid:14886 [14886, Main Thread] WARNING: NS_ENSURE_TRUE(mHiddenWindow) failed: file /fast/ben/tb/mozilla/xpfe/appshell/nsAppShellService.cpp, line 783
 
-
-

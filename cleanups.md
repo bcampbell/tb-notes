@@ -51,3 +51,23 @@ and in javascript:
 - comm/mailnews/imap/test/unit/test_saveTemplate.js
 - comm/mail/test/mozmill/folder-pane/test-folder-pane.js
 
+
+# special case handling for junk folder localized name
+
+The default junk folder is supposed to be called "Junk" on disk, but
+appear in the UI with a (potentially) localized name.
+There's a little special-case handling in msgUtils.cpp 
+GetOrCreateJunkFolder(), resulting from Bug 270261
+    https://bugzilla.mozilla.org/show_bug.cgi?id=270261
+
+It seems like this issue extends to other folder types?
+Shouldn't there be a generalised mechanism to handle it?
+
+
+# nsMsgDBFolder::VerifyOfflineMessage() not used?
+
+Doesn't ever seem to be referenced.
+Looks for "From -" line, which is dodgy...
+
+  $ grep -ir VerifyOfflineMessage comm
+

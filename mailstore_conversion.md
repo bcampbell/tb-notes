@@ -11,52 +11,48 @@ and the type of folders - there are lots of checks and special
 cases.
 
 The converter iterates through the filesystem directly to
-discover the messages. Shouldn't it use nsIMsgFolder iteration
-to get the messages instead? At least for the source.
+discover the messages.
 
 Once the folders have been converted, Thunderbird is restarted
 to pick up the new ones.
 
-## Alternative 1
+## Use xpcom nsIMsgPlugableMailstore to read & write messages
 
-Converting mailstores shouldn't require any knowledge of the store or
-folder types (or even directory structure, barring the top-level
-location within the profile). Get the xpcomm objects doing the hard
-work, with the converter just orchestrating.
+This would avoid having duplicated maildir/mbox parsing code.
 
-Pseudocode:
+The issue is that you can't call xpcom from worker threads,
+and a long-running operation like this needs GUI progress
+feedback. So this might not be possible.
 
-    function convertMailStore( srcStore, destType ):
-        tmpLocation = CreateTempDir()
-        destStore = new MailStore(destType, tmpLocation)
-        convertFolder( srcStore.rootFolder(), destStore.rootFolder())
-        move( tmpLocation, srcStore.filesystemLocation)
+Ideas to get around this:
 
-    funcion convertFolder( srcFolder, destFolder):
-        for msg in srcFolder.messages:
-            destFolder.addMessage(msg)
+- could the C++ side accept a listener which informs the GUI?
+- could the C++ side be made fast enough that it's not even an
+  issue? After all, it's just file copying so we should be able
+  to shift vast amounts of data very quickly.
 
-        // copy .msf, .dat, etc...
-        // likely needs to be more clever than this - folders should know what they need.
-        for f in srcFolder.supportFiles:
-            destFolder.copySupportFile(f)
+## clean up mailstoreConverter.jsm-worker interface
 
-        // recurse into subfolders
-        // NOTE: for non-local folders, we don't want to create folders on server!
-        // Not sure how to address this.
-        for srcSubFolder in srcFolder.children:
-            destSubFolder = destFolder.createSubFolder(srcSubFolder.name)
-            convertFolder( srcSubFolder, destSubFolder)
+Currently the main thread just passes an array to the worker,
+and the worker does some voodoo to work out what it should do.
 
-Downsides: tricky on the writing side, and avoiding side-effects with imap
-folders and the like.
+Worker should just be told:
+"convert this maildir dir to this mbox file" or
+"split this mbox file into this maildir"
 
+Main thread should handle all the directory hierarchy gubbins.
 
-## Alternative 2
+Could (should) even have separate workers for each direction.
 
-Use the nsIMsgFolder interface to iterate over the source messages (and so
-not have to worry what type of store it is), but have the converter build
-up the destination folders itself, directly to the filesystem
-(and restart Thunderbird to switch over).
+## better progress feedback from worker
+
+Currently, assumes that file counts stay in sync. Should
+define better protocol for sending progress, completion and
+errors back to main thread.
+
+## use OS.File APIs instead of nsIFile
+
+Seems like that's the way the codebase is going?
+Also, can use from worker thread.
 
 
