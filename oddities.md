@@ -1,3 +1,11 @@
+# xpcom objects
+
+no way to cast to concrete types?
+eg can't get a nsMsgDBFolder from a nsIMsgFolder...
+(see CreateChildFromURI() for annoying example)
+
+Can we use `dynamic_cast<>`?
+
 # phantom imap folder dupes
 
 start tb
@@ -27,4 +35,10 @@ Following:
 5 no debugging happens. In xpcshell output, see:
 
     0:44.70 pid:14886 [14886, Main Thread] WARNING: NS_ENSURE_TRUE(mHiddenWindow) failed: file /fast/ben/tb/mozilla/xpfe/appshell/nsAppShellService.cpp, line 783
+
+# OS.File.Directory.Iterator doesn't support array comprehensions and iteration?
+
+Docs suggest it does, but it doesn't seem to work.
+Have to use iterator.forEach() instead?
+NOTE: try for..of (might have been using for..in)
 

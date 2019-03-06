@@ -298,6 +298,7 @@ Inherits:
 inherited by:
 - nsMailboxServer
 - nsNntpIncomingServer
+- nsImapIncomingServer
 - JaBaseCppIncomingServer
 
 ## nsImapIncomingServer

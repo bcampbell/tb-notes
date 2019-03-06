@@ -7,14 +7,10 @@ Always seems to push to the default hg.mozilla.org/try server instead.
 commit message with try syntax, and a manual push works eg:
 
     $ cd comm
-    $ hg qnew -m "try: -b do -p linux64 -u all" try
+    $ hg qnew -m "try: -b do -p linux64,macosx64,win32 -u all" try
     $ hg push -f -r tip cc-try && hg qpop && hg qdelete try
 
-
-
-
 tests:
-
     -u all
     -u mozmill
     -u none
@@ -41,4 +37,10 @@ in $HOME/.ctags:
 invocation:
 
     $ ctags -R --languages=C++,idl --exclude='obj-x86_64-pc-linux-gnu/*' --exclude='*dist\/include*' --exclude='*[od]32/*' --exclude='*[od]64/*'
+
+# cleanup .orig and .rej files from dirs
+
+    $ find . -name "*.orig" -delete
+    $ find . -name "*.rej" -delete
+
 

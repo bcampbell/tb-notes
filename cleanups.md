@@ -71,3 +71,81 @@ Looks for "From -" line, which is dodgy...
 
   $ grep -ir VerifyOfflineMessage comm
 
+# unify nsIMsgFolderListener and nsIFolderListener
+
+nsIFolderListener was retained to avoid breaking extensions.
+
+# ditch XPCOM for things which are implemented only in C++
+
+benefit:
+- simplification
+- more idiomatic C++ (less QueryInterface and nsresult checking)
+- better encapsulation (can better choose what to expose to JS)
+- easier debugging (eg see member vars for base classes)
+- more optimisation opportunity for compiler (inlining etc)
+
+eg: The folder classes.
+Expose to JS via a very specific, JS-centric interface.
+
+What is firefox policy on this these days?
+
+# nsIMsgPluggableStore shouldn't be responsible for creating folders?
+
+Should focus on storage, not folders or DB.
+
+# nsMsgAccountManager::SetSpecialFolders() only used by PostAccountWizard()
+
+It looks SetSpecialFolders() is only ever used by LoadPostAccountWizard()
+in mail/base/content/msgMail3PaneWindow.js.
+
+    $ cd comm
+    $ grep -ir SetSpecialFolders *
+
+# factor out folder flag policy?
+
+see:
+mailnews/base/src/nsMsgAccountManager.cpp nsMsgAccountManager::SetSpecialFolders() 
+
+# factor out folder naming policy
+
+The UI-facing names aren't always the same as filesystem names.
+- There are localisation hacks.
+- Case-insensitivity is an issue on windows.
+- Some folder flags are set by name?
+- IMAP has some special rules
+
+It'd be nice to collect all the policy into one place (probably
+plugablemailstore, which should really be the only part dealing with
+filenames).
+At the moment, such hacks are spread all over the place.
+
+see places in code:
+
+    nsMsgDBFolder::AddSubfolder()  (forcing case on certain folders)
+
+# TB protocols - set context param to nullptr.
+
+nsMsgProtocol-derived protocols should always send nullptr to
+stream callbacks to avoid any code relying on it.
+
+see [Bug 1525319 - Investigate if we can remove Context argument from Channel methods](https://bugzilla.mozilla.org/show_bug.cgi?id=1525319)
+
+# TB protocols - audit URI use in streamlistener callbacks
+
+OnStartRequest et al shouldn't cast request param to channel.
+(exception might be OnDataAvailable(), which is a channel-specific callback).
+Some TB code relies on this, and it shouldn't.
+
+# separate nsParseMailMessageState out from nsMsgMailboxParser?
+
+nsMsgMailboxParser is parser for mbox files.
+nsParseMailMessageState is used by mbox, maildir (and imap, more?).
+
+# nsICopyMessageStreamListener::EndCopy() uri param shouldn't be type nsISupport
+
+Why shouldn't it be a proper URI type?
+
+# nsNntpIncomingServer::GetNntpChannel() should take loadInfo as param?
+
+Currently all callers have to manually set the loadInfo attr themselves
+
