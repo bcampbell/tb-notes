@@ -36,6 +36,15 @@ eg
     $ export MOZ_LOG="timestamp,imap:5,pop3:5,nntp:5,smtp:5,sync"
 
 
+# Assertions
+
+
+    https://developer.mozilla.org/en-US/docs/Mozilla/Debugging/XPCOM_DEBUG_BREAK
+
+eg:
+
+    $ export XPCOM_DEBUG_BREAK=suspend
+
 
 # Force debug break in code:
 
