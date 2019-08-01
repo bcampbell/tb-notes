@@ -29,11 +29,16 @@ see https://wiki.mozilla.org/MailNews:Logging for details.
 To turn on logging:
 
     $ export MOZ_LOG="BayesianFilter:5"
-
-Also, `MOZ_LOG_FILE` to output to a file.
-
 eg
-    $ export MOZ_LOG="timestamp,imap:5,pop3:5,nntp:5,smtp:5,sync"
+    $ export MOZ_LOG="timestamp,IMAP:5,POP3:5,NNTP:5,SMTP:5,sync"
+
+Use `MOZ_LOG_FILE` to log to file instead of stderr, eg:
+
+    $ export MOZ_LOG_FILE="/tmp/tb_log.txt"
+
+Log levels:
+
+0: disabled, 1: Error, 2: Warning, 3: Info, 4: Debug, 5: Verbose
 
 
 # Assertions
