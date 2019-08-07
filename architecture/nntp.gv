@@ -1,0 +1,48 @@
+// dot -Tpng -o/tmp/foo.png nntp.gv
+digraph G {
+rankdir="BT";
+node [shape=box, fillcolor=lightgrey, style="rounded,filled"];
+
+
+nsNNTPProtocol -> nsMsgProtocol,
+                  nsINNTPProtocol,
+                  nsITimerCallback,
+                  nsICacheEntryOpenCallback,
+                  nsIMsgAsyncPromptListener,
+                  nsIProtocolProxyCallback;
+
+
+nsMsgProtocol -> nsIStreamListener,
+                 nsIChannel,
+                 nsITransportEventSink;
+
+nsIChannel -> nsIRequest
+
+nsIStreamListener -> nsIRequestObserver
+
+nsNntpMockChannel -> nsIChannel
+
+// server
+nsNntpIncomingServer -> nsMsgIncomingServer,
+                        nsINntpIncomingServer,
+                        nsIUrlListener,
+                        nsISubscribableServer,
+                        nsITreeView
+
+nsMsgIncomingServer -> nsIMsgIncomingServer,
+                       nsSupportsWeakReference,
+                       nsIObserver
+
+nsSupportsWeakReference -> nsISupportsWeakReference;
+
+
+//service 
+nsNntpService -> nsINntpService,
+                 nsIMsgMessageService,
+                 nsIMsgMessageFetchPartService,
+                 nsIProtocolHandler,
+                 nsIMsgProtocolInfo,
+                 nsICommandLineHandler,
+                 nsIContentHandler;
+}
+
