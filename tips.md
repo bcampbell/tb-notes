@@ -18,9 +18,32 @@ tests:
 platforms:
     -p linux,linux64,macosx64,win32,win64
 
-assumes [paths] part in .hg/hgrc contains:
+assumes [paths] part in C-C/.hg/hgrc contains:
 
     cc-try = ssh://hg.mozilla.org/try-comm-central
+
+
+To do a try build with changesets from both M-C and C-C:
+
+make sure the M-C try server alias is set up in M-C/.hg/hgrc:
+
+    try = ssh://hg.mozilla.org/try
+
+Push the changeset(s) you want to M-C:
+
+    $ hg push -r <top rev to push> -f try
+
+Edit C-C`/.gecko_rev.yml` to set the M-C rev:
+
+    -GECKO_HEAD_REPOSITORY: https://hg.mozilla.org/mozilla-central
+    -GECKO_HEAD_REF: default
+    +GECKO_HEAD_REPOSITORY: https://hg.mozilla.org/try
+    +GECKO_HEAD_REF: <your rev here>
+
+Then do a C-C try build as usual.
+
+
+
 
 # which source files included in build?
 

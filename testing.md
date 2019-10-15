@@ -16,9 +16,21 @@ single file eg:
 
     $ ./mach xpcshell-test comm/mailnews/imap/test/unit/test_converterImap.js
 
+
+Each test file (`test_blahblahblah.js`) is run individually, sandwiched
+between the head and tail js files.
+The head/tail files will be run for every test file.
+
+So, for example, every test file sees it's own unique profile directory
+for `do_get_profile()`.
+
 # mozmill tests
 
 Whole-app tests run by driving the compiled app remotely.
+
+To run the lot:
+
+  $ make mozmill
 
 To run a single test:
 
