@@ -1,0 +1,83 @@
+@startuml
+nsISupports <|-- nsILDAPBERElement
+nsISupports <|-- nsILDAPBERValue
+nsISupports <|-- nsILDAPMessageListener
+nsISupports <|-- nsILDAPModification
+nsISupports <|-- nsILDAPConnection
+nsISupports <|-- nsILDAPControl
+nsISupports <|-- nsILDAPErrors
+nsISupports <|-- nsILDAPMessage
+nsISupports <|-- nsILDAPServer
+nsISupports <|-- nsILDAPOperation
+nsISupports <|-- nsILDAPService
+nsISupports <|-- nsILDAPSyncQuery
+nsISupports <|-- nsILDAPURL
+nsIURI <|-- nsILDAPURL
+nsISupports <|-- nsIURI
+
+interface nsISupports
+interface nsILDAPBERElement
+interface nsILDAPBERValue
+interface nsILDAPMessageListener
+interface nsILDAPModification
+interface nsILDAPConnection
+interface nsILDAPControl
+interface nsILDAPErrors
+interface nsILDAPMessage
+interface nsILDAPServer
+interface nsILDAPOperation
+interface nsILDAPService
+interface nsILDAPSyncQuery
+interface nsILDAPURL
+interface nsIURI
+
+
+class nsLDAPConnection
+
+nsILDAPConnection <|-- nsLDAPConnection
+
+class nsLDAPOperation
+nsILDAPOperation <|-- nsLDAPOperation
+
+class nsLDAPBERElement
+nsILDAPBERElement <|-- nsLDAPBERElement
+
+class nsLDAPBERValue
+nsILDAPBERValue <|-- nsLDAPBERValue
+
+class nsLDAPMessage
+nsILDAPMessage <|-- nsLDAPMessage
+
+`class nsOnLDAPMessageRunnable
+`Runnable <|-- nsOnLDAPMessageRunnable
+
+class nsLDAPConnection
+nsILDAPConnection <|-- nsLDAPConnection
+nsSupportsWeakReference <|-- nsLDAPConnection
+nsIDNSListener <|-- nsLDAPConnection
+nsIObserver <|-- nsLDAPConnection
+
+`class nsLDAPConnectionRunnable
+`nsIRunnable <|-- nsLDAPConnectionRunnable
+
+class nsLDAPControl
+nsILDAPControl <-- nsLDAPControl
+
+class nsLDAPModification
+nsILDAPModification <|-- nsLDAPModification
+
+class nsLDAPServer
+nsILDAPServer <|-- nsLDAPServer
+
+class nsLDAPService
+nsILDAPService <|-- nsLDAPService
+nsILDAPMessageListener <|-- nsLDAPService
+
+class nsLDAPSyncQuery
+nsILDAPSyncQuery <|-- nsLDAPSyncQuery
+nsILDAPMessageListener <|-- nsLDAPSyncQuery
+
+class nsLDAPURL
+nsILDAPURL <|-- nsILDAPURL
+
+@enduml

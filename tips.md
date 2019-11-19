@@ -59,7 +59,7 @@ in $HOME/.ctags:
 
 invocation:
 
-    $ ctags -R --languages=C++,idl --exclude='obj-x86_64-pc-linux-gnu/*' --exclude='*dist\/include*' --exclude='*[od]32/*' --exclude='*[od]64/*'
+    $ ctags -R --languages=C,C++,idl --exclude='obj-x86_64-pc-linux-gnu/*' --exclude='*dist\/include*' --exclude='*[od]32/*' --exclude='*[od]64/*' --exclude '.hg' .
 
 # cleanup .orig and .rej files from dirs
 

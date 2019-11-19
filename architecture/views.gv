@@ -1,0 +1,22 @@
+// dot -Tpng -o/tmp/foo.png views.gv
+digraph G {
+  rankdir="BT";
+  node [shape=box, fillcolor=lightgrey, style="rounded,filled"];
+  nsMsgDBView -> nsIMsgDBView,
+               nsIDBChangeListener,
+               nsITreeView,
+               nsIJunkMailClassificationListener;
+
+  nsMsgGroupView -> nsMsgDBView;
+
+  nsMsgQuickSearchDBView -> nsMsgThreadedDBView, nsIMsgSearchNotify;
+
+  nsMsgThreadedDBView -> nsMsgGroupView; 
+
+  nsMsgThreadsWithUnreadDBView -> nsMsgThreadedDBView;
+  nsMsgWatchedThreadsWithUnreadDBView -> nsMsgThreadedDBView;
+
+  // behind #ifdef DOING_CACHELESS_VIEW
+  //  nsMsgCachelessView -> nsMsgDBView
+}
+

@@ -7,19 +7,27 @@ add this line to `mozconfig`:
 
 # GDB
 
+[See also](https://developer.mozilla.org/en-US/docs/Mozilla/Debugging/Debugging_Mozilla_with_gdb)
+
+## setup
+
 add to ~/.gdbinit (or create if not already present):
 
     add-auto-load-safe-path /home/ben/src/source/.gdbinit
 
 (actually, /home/ben/src/ is probably enough)
 
-run a build under gdb:
+## run a build under gdb
 
     $ ./mach run --debug
 
-run a test under gdb (eg):
+## run a test under gdb (eg)
 
     $ ./mach xpcshell-test --debugger gdb --debugger-interactive comm/mailnews/extensions/bayesian-spam-filter/test/unit/test_customTokenization.js
+
+## Dump out JS call stack:
+
+    (gdb) call DumpJSStack()
 
 
 # Logging
@@ -40,6 +48,11 @@ Log levels:
 
 0: disabled, 1: Error, 2: Warning, 3: Info, 4: Debug, 5: Verbose
 
+## logging NSPR stuff
+
+eg:
+
+    $ export NSPR_LOG_MODULES="pipnss:5"
 
 # Assertions
 

@@ -1,0 +1,40 @@
+@startuml
+
+interface nsISupports
+interface nsIObserver
+interface nsISupportsWeakReference
+interface nsIMsgAccountManager
+interface nsIUrlListener
+interface nsIFolderListener
+interface nsIMsgAccount
+interface nsIMsgIdentity
+interface nsIMsgIncomingServer
+
+nsISupports <|-- nsIObserver
+nsISupports <|-- nsIMsgAccountManager
+nsISupports <|-- nsIUrlListener
+nsISupports <|-- nsIFolderListener
+nsISupports <|-- nsIMsgAccount
+nsISupports <|-- nsIMsgIdentity
+nsISupports <|-- nsIMsgIncomingServer
+nsISupports <|-- nsISupportsWeakReference
+nsISupportsWeakReference <|-- nsSupportsWeakReference
+
+class nsMsgAccountManager
+
+nsIMsgAccountManager <|-- nsMsgAccountManager
+nsIObserver <|-- nsMsgAccountManager
+nsIUrlListener <|-- nsMsgAccountManager
+nsIFolderListener <|-- nsMsgAccountManager
+
+class nsMsgIdentity
+nsIMsgIdentity <|-- nsMsgIdentity
+
+class nsMsgAccount
+nsIMsgAccount <|-- nsMsgAccount
+
+@enduml
+
+
+
+

@@ -1,0 +1,71 @@
+// dot -Tpng -o/tmp/foo.png ab_ldap.gv
+
+// partial map of addressbook/ldap stuff
+
+digraph G {
+  rankdir="BT";
+  node [ shape = "record" ]
+
+  nsIAbDirectory -> nsIAbCollection;
+
+  nsIAbCollection -> nsIAbItem;
+
+  nsAbDirProperty -> nsIAbDirectory, nsSupportsWeakReference;
+
+  nsAbLDAPDirectory -> nsAbDirProperty,
+                     nsAbLDAPDirectoryModify,
+                     nsIAbDirectorySearch,
+                     nsIAbLDAPDirectory,
+                     nsIAbDirSearchListener;
+
+  nsAbLDAPDirectoryQuery -> nsIAbDirectoryQuery,
+                            nsIAbDirectoryQueryResultListener;
+
+  nsAbQueryLDAPMessageListener -> nsAbLDAPListenerBase;
+
+  nsAbLDAPListenerBase -> nsILDAPMessageListener;
+
+  nsLDAPConnection -> nsILDAPConnection,
+                      nsSupportsWeakReference,
+                      nsIDNSListener,
+                      nsIObserver;
+
+
+
+  nsIAbDirSearchListener [
+    label = "{nsIAbDirSearchListener|" +
+      "+ void onSearchFinished(in long aResult, in AString aErrorMsg);\l" +
+      "+ void onSearchFoundCard(in nsIAbCard aCard);\l}"
+  ]
+
+  nsIAbDirectoryQuery [
+    label = "{nsIAbDirectoryQuery|" +
+      "+ doQuery(....)\l" +
+      "+ stopQuery(...)\l}";
+  ]
+
+  nsIAbDirectoryQueryResultListener [
+    label = "{nsIAbDirectoryQueryResultListener|" +
+      "+ void onQueryFoundCard(in nsIAbCard aCard);\l" +
+      "+ void onQueryResult(in long aResult, in long aErrorCode);\l" +
+      "(these can be called from another thread)}";
+  ]
+
+  nsILDAPMessageListener [
+    label = "{nsILDAPMessageListener|" +
+      "+ void onLDAPMessage(in nsILDAPMessage aMessage)\l" +
+      "+ void onLDAPInit(in nsILDAPConnection aConn, in nsresult aStatus)\l}"
+  ]
+
+  nsIDNSListener [
+    label = "{nsIDNSListener|" +
+      "+ onLookupComplete(...)\l" +
+      "+ onLookupByTypeComplete(...)\l}"
+  ]
+
+  nsIObserver [
+    label = "{nsIObserver|" +
+      "+ observe(...)\l}"
+  ]
+
+}
