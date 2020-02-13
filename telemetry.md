@@ -46,16 +46,24 @@ The runtime settings needed for a minimal test setup are:
 
 eg paste into your prefs.js:
 
+```
 user_pref("toolkit.telemetry.server", "http://localhost:8080/wibble");
 user_pref("toolkit.telemetry.server_owner", "Nobody");
 user_pref("datareporting.policy.dataSubmissionPolicyBypassNotification",true);
 user_pref("datareporting.policy.dataSubmissionEnabled", true);
 user_pref("toolkit.telemetry.log.level", "Trace");
 user_pref("toolkit.telemetry.send.overrideOfficialCheck", true);
+```
 
 TODO: need to check the default prefs included in builds to see if there
 are any telemetry-related changes required (both for testing and for release
 builds).
+
+```
+pref("services.sync.telemetry.submissionInterval", 43200); // 12 hours in seconds
+pref("services.sync.telemetry.maxPayloadCount", 500);
+```
+
 
 
 ## Data-collection Policy

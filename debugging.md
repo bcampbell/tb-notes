@@ -70,31 +70,6 @@ For intel 32/64 bit:
 
       __asm__("int $3");
 
-# debugging with gdb under mozmill
-
-##attempt 1:
-
-wrap TB bin with a script:
-
-    #!/bin/bash
-    here=$( dirname ${BASH_SOURCE[0]} )
-    gdb -ex "run" --args $here/thunderbird2 $@
-
-## attempt 2:
-
-hack:
-    obj-x86_64-pc-linux-gnu/_tests/mozmill-virtualenv/lib/python2.7/site-packages/mozmill/__init__.py
-
-in MozMill.start(), pass in some `debug_args` when it calls `start()` on the runner, eg:
-
-        self.runner.start(debug_args = ['gdb', '-ex', 'run', '--args'])
-
-Doens't work. Just stalls. Suspect some stdin/out frigging required.
-
-## result:
-
-Just accept defeat and try attaching gdb to the running process instead.
-
 # run dummy smtp server
 
     $ python -m smtpd -n -c DebuggingServer localhost:6502
