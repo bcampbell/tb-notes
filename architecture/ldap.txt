@@ -61,7 +61,7 @@ nsIObserver <|-- nsLDAPConnection
 `nsIRunnable <|-- nsLDAPConnectionRunnable
 
 class nsLDAPControl
-nsILDAPControl <-- nsLDAPControl
+nsILDAPControl <|-- nsLDAPControl
 
 class nsLDAPModification
 nsILDAPModification <|-- nsLDAPModification

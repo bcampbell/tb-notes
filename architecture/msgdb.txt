@@ -1,0 +1,24 @@
+@startuml
+
+interface nsISupports
+interface nsIMsgDatabase
+interface nsIDBChangeAnnouncer
+interface nsINewsDatabase
+
+class nsMsgDatabase
+class nsMailDatabase
+class nsNewsDatabase
+class nsImapMailDatabase
+
+nsISupports <|-- nsIDBChangeAnnouncer 
+
+nsIDBChangeAnnouncer <|-- nsIMsgDatabase
+
+nsIMsgDatabase <|-- nsMsgDatabase
+
+nsMsgDatabase <|-- nsMailDatabase
+nsMsgDatabase <|-- nsNewsDatabase
+
+nsMailDatabase <|-- nsImapMailDatabase
+
+@enduml
