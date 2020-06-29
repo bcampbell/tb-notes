@@ -1,0 +1,40 @@
+#!/bin/bash
+
+# search for string in c-c
+# $ ccgrep -i Mailstore
+
+#TODO:
+# add -h/-? support
+# add option to filter by idl/js/c++
+
+MC=~/tb/mozilla
+excludedirs="--exclude-dir .hg"
+if [[ "$(basename "$0")" == "mcgrep" ]]; then
+    targ="."
+    excludedirs="${excludedirs} --exclude-dir comm --exclude-dir obj* --exclude tags"
+else
+    targ="comm"
+fi
+
+flags="-r"
+
+while getopts "li" opt; do
+    case "$opt" in
+    i)  flags="${flags}i"
+        ;;
+    l)  flags="${flags}l"   # list files only
+        ;;
+    esac
+done
+
+shift $((OPTIND-1))
+
+if [[ $# -ne 1 ]]; then
+    echo "${0}: missing pattern."
+    exit 4
+fi
+
+pushd $MC >/dev/null
+grep ${flags} ${excludedirs} "${1}" "${targ}"
+popd >/dev/null
+

@@ -1,0 +1,62 @@
+#!/bin/bash
+# cclint - run mach format checking on modified files in C-C
+# (eslint for javascript, clang-format for c++)
+
+MCDIR=~/tb/mozilla
+CCDIR="${MCDIR}/comm"
+
+set -e
+pushd "$CCDIR" >/dev/null
+
+usage() { echo "Usage: $0 [-r <REV>]" 1>&2; exit 1; }
+
+rev=""
+while getopts "r:" opt; do
+    case "$opt" in
+    r)  rev=${OPTARG}
+        ;;
+    *)  usage
+        ;;
+    esac
+done
+shift $((OPTIND-1))
+
+
+function do_js() {
+    for f in $@
+    do
+        echo "../mach eslint \"$f\""
+        ../mach eslint "$f"
+    done
+}
+
+function do_cpp() {
+    for f in $@
+    do
+        echo "../mach clang-format -s -p \"comm/$f\""
+        ../mach clang-format -s -p "comm/$f"
+    done
+}
+
+if [ -z "$rev" ]; then
+    # no revision - use locally-modified files.
+    changed="$(hg status -m -a -n)"
+else
+    # get files modified by specific changeset
+    changed="$(hg status -m -a -n --change $rev)"
+fi
+
+js=$(echo "$changed" | egrep "[.](js|jsm)$" || true)
+cpp=$(echo "$changed" | egrep "[.](h|cpp)$" || true)
+idl=$(echo "$changed" | egrep "[.]idl$" || true)
+
+#echo -e "----changed:\n$changed"
+#echo -e "----js:\n$js"
+#echo -e "----cpp:\n$cpp"
+echo -e "skip modified .idl files:\n$idl"
+echo
+do_cpp $cpp
+echo
+do_js $js
+
+popd >/dev/null
