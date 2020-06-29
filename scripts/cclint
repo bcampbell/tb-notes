@@ -2,6 +2,11 @@
 # cclint - run mach format checking on modified files in C-C
 # (eslint for javascript, clang-format for c++)
 
+# Without args, it checks all modified files (changed, but not checked in).
+# Use `-r <REV>` to check the files which were altered by changeset <REV>
+# instead.
+
+#TODO: check for existing $MCDIR rather than hardcoding it here
 MCDIR=~/tb/mozilla
 CCDIR="${MCDIR}/comm"
 
