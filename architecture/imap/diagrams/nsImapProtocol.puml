@@ -1,0 +1,52 @@
+@startuml
+skinparam linetype ortho
+left to right direction
+
+interface nsIImapProtocol
+interface nsIRunnable
+interface nsIInputStreamCallback {
+    onInputStreamReady(nsIAsyncInputStream)
+}
+
+class nsSupportsWeakReference
+interface nsIImapProtocolSink
+interface nsIMsgAsyncPromptListener
+interface nsIProtocolProxyCallback
+
+interface nsIRequest
+
+interface nsIChannel
+nsIRequest <|-- nsIChannel
+
+interface nsIStreamListener {
+    onDataAvailable(...)
+}
+
+interface nsIRequestObserver {
+    onStartRequest(...)
+    onStopRequest(...)
+}
+
+nsIRequestObserver <|-- nsIStreamListener 
+
+interface nsITransportEventSink {
+    onTransportStatus(...)
+}
+
+class nsMsgProtocol
+nsIChannel <|-- nsMsgProtocol
+nsIStreamListener <|-- nsMsgProtocol
+nsITransportEventSink <|-- nsMsgProtocol
+
+
+class nsImapProtocol
+nsIImapProtocol <|-- nsImapProtocol
+nsIRunnable <|-- nsImapProtocol
+nsIInputStreamCallback <|-- nsImapProtocol
+nsSupportsWeakReference <|-- nsImapProtocol
+nsMsgProtocol <|-- nsImapProtocol
+nsIImapProtocolSink <|-- nsImapProtocol
+nsIMsgAsyncPromptListener <|-- nsImapProtocol
+nsIProtocolProxyCallback <|-- nsImapProtocol
+
+@enduml

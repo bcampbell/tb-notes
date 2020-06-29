@@ -24,19 +24,14 @@ The head/tail files will be run for every test file.
 So, for example, every test file sees it's own unique profile directory
 for `do_get_profile()`.
 
-# mozmill tests
+If a test is still running after 5 minutes, it will timeout (and fail).
 
-Whole-app tests run by driving the compiled app remotely.
+# mochitest
 
-To run the lot:
+eg:
 
-  $ make mozmill
+    $ ./mach mochitest --headless --log-mach - --log-mach-level debug comm/mail/test/browser/composition/browser_addressWidgets.js
 
-To run a single test:
+`--log-mach` to get human-readable output.
 
-    $ cd obj-x86_64-pc-linux-gnu/
-    $ make SOLO_TEST=attachment/test-attachment-multiple.js mozmill-one
-
-run a whole directory of tests:
-    $ make SOLO_TEST=attachment mozmill-one
 

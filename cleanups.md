@@ -9,7 +9,6 @@ There's a lot of complication in there.
 
 -> refactor to be more "pure" protocols. Use firefox as example.
 
-
 # TB-specific URL classes add lots of state
 
 The `nsIURI`-derived classes in TB add lots of request-specific
@@ -22,7 +21,74 @@ about it.
 -> should be able to move all the listener/state out, because we're
 using `nsIChannel`-based objects to run requests already, right?
 
-# Other stuff
+# Make folder creation/renaming/deleting etc async.
+
+It needs to be async for IMAP, so use the same API for the other folder types.
+Will simplify things a lot. Doesn't make things less responsive as the
+listeners can just be directly invoked when possible.
+Applies to message operations too (move/copy/delete messages etc)
+
+# Folder creation: ditch the requirement for dangling folders.
+
+As a byproduct of the now removed RDF code, we still rely on being able
+to get folders which have not yet been created. This is bonkers.
+Rationalise the folder creation paths, so that folders are always constructed
+in predictable ways!
+
+# ditch XPCOM for things which are implemented only in C++
+
+see also: https://wiki.mozilla.org/Gecko:DeCOMtamination
+
+benefit:
+- simplification
+- more idiomatic C++ (less QueryInterface and nsresult checking)
+- better encapsulation (can better choose what to expose to JS)
+- easier debugging (eg see member vars for base classes)
+- more optimisation opportunity for compiler (inlining etc)
+
+eg: The folder classes.
+Expose to JS via a very specific, JS-centric interface.
+
+What is firefox policy on this these days?
+
+# nail down nsIMsgPluggableStore responsibilities
+
+Ideally should just deal with filesystem, but needs to stash things in the
+message database (eg offsets of messages within an mbox file).
+Figure out a good interface boundary.
+Ideally, pluggable mailstores shouldn't know anything about folders.
+
+# nail down naming policies
+
+The UI-facing names aren't always the same as filesystem names.
+- There are localisation hacks.
+- Case-insensitivity is an issue on windows.
+- Some folder flags are set by name?
+- IMAP has some special rules
+
+It'd be nice to collect all the policy into one place (probably
+plugablemailstore, which should really be the only part dealing with
+filenames).
+At the moment, such hacks are spread all over the place.
+
+see places in code:
+
+    nsMsgDBFolder::AddSubfolder()  (forcing case on certain folders)
+
+
+# Gradual move away from wide strings (UCS-2/UTF-16) in C++
+
+Start phasing out use of 16-bit strings on the C++ side?
+
+idl files: use AUTF8String instead of AString.
+C++: use nsCString (8bit) instead of nsString (16bit)
+javascript: no change (AUTF8String Just Works (tm))
+
+Prime candidates to swap over in nsIMsgFolder: name, prettyName,
+abbreviatedName etc..
+
+
+# Smaller stuff
 
 ## nsIMsgFolder::incomingServerType could be ditched?
 
@@ -48,11 +114,6 @@ Should convert the local folder to also be async, and use the same code.
 ## nsMsgIncomingServer::GetMsgFolderFromURI() is bonkers
 
 first param, folderResource, is redundant.
-
-
-## nsMsgDBFolder::GetChildWithURI()
-
-use nsIMsgFolder instead of RDFResource
 
 
 ## CreateStorageIfMissing() is misleading name
@@ -94,27 +155,10 @@ Looks for "From -" line, which is dodgy...
 
   $ grep -ir VerifyOfflineMessage comm
 
-## unify nsIMsgFolderListener and nsIFolderListener
+## unify nsIMsgFolderListener and nsIFolderListener?
 
 nsIFolderListener was retained to avoid breaking extensions.
 
-## ditch XPCOM for things which are implemented only in C++
-
-benefit:
-- simplification
-- more idiomatic C++ (less QueryInterface and nsresult checking)
-- better encapsulation (can better choose what to expose to JS)
-- easier debugging (eg see member vars for base classes)
-- more optimisation opportunity for compiler (inlining etc)
-
-eg: The folder classes.
-Expose to JS via a very specific, JS-centric interface.
-
-What is firefox policy on this these days?
-
-## nsIMsgPluggableStore shouldn't be responsible for creating folders?
-
-Should focus on storage, not folders or DB.
 
 ## nsMsgAccountManager::SetSpecialFolders() only used by PostAccountWizard()
 
@@ -128,23 +172,6 @@ in mail/base/content/msgMail3PaneWindow.js.
 
 see:
 mailnews/base/src/nsMsgAccountManager.cpp nsMsgAccountManager::SetSpecialFolders() 
-
-## factor out folder naming policy
-
-The UI-facing names aren't always the same as filesystem names.
-- There are localisation hacks.
-- Case-insensitivity is an issue on windows.
-- Some folder flags are set by name?
-- IMAP has some special rules
-
-It'd be nice to collect all the policy into one place (probably
-plugablemailstore, which should really be the only part dealing with
-filenames).
-At the moment, such hacks are spread all over the place.
-
-see places in code:
-
-    nsMsgDBFolder::AddSubfolder()  (forcing case on certain folders)
 
 ## TB protocols - set context param to nullptr.
 
@@ -171,4 +198,9 @@ Why shouldn't it be a proper URI type?
 ## nsNntpIncomingServer::GetNntpChannel() should take loadInfo as param?
 
 Currently all callers have to manually set the loadInfo attr themselves
+
+## remove nsIMsgDatabase.asyncOpenFolderDB() and .openMore()
+
+Used only by tests, not main code.
+
 

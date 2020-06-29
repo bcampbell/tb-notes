@@ -1,0 +1,41 @@
+@startuml
+skinparam linetype ortho
+left to right direction
+
+
+interface nsIURI
+
+interface nsIURL
+nsIURI <|-- nsIURL
+
+interface nsIImapUrl
+
+interface nsIMsgMailNewsUrl
+nsIURL <|-- nsIMsgMailNewsUrl
+
+interface nsIMsgMessageUrl
+interface nsIMsgI18NUrl
+interface nsIURIWithSpecialOrigin
+interface nsISerializable
+interface nsIClassInfo
+
+
+
+class nsImapUrl
+nsIImapUrl <|-- nsImapUrl
+nsMsgMailNewsUrl <|-- nsImapUrl
+nsIMsgMessageUrl <|-- nsImapUrl
+nsIMsgI18NUrl <|-- nsImapUrl
+
+class nsMsgMailNewsUrl
+nsIMsgMailNewsUrl <|-- nsMsgMailNewsUrl
+nsIURIWithSpecialOrigin <|-- nsMsgMailNewsUrl
+nsISerializable <|-- nsMsgMailNewsUrl
+nsIClassInfo <|-- nsMsgMailNewsUrl
+
+interface nsIUrlListener {
+    OnStartRunningUrl(...)
+    OnStopRunningUrl(...)
+}
+
+@enduml
