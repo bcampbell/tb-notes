@@ -1,0 +1,45 @@
+@startuml
+skinparam linetype ortho
+left to right direction
+
+interface nsIMsgAsyncPromptListener
+interface nsIProtocolProxyCallback
+
+interface nsIRequest
+
+interface nsIChannel
+nsIRequest <|-- nsIChannel
+
+interface nsIStreamListener {
+    onDataAvailable(...)
+}
+
+interface nsIRequestObserver {
+    onStartRequest(...)
+    onStopRequest(...)
+}
+
+nsIRequestObserver <|-- nsIStreamListener 
+
+interface nsITransportEventSink {
+    onTransportStatus(...)
+}
+
+interface msgIOAuth2ModuleListener
+
+interface nsIPop3Protocol
+
+class nsMsgProtocol
+nsIChannel <|-- nsMsgProtocol
+nsIStreamListener <|-- nsMsgProtocol
+nsITransportEventSink <|-- nsMsgProtocol
+
+
+class nsPop3Protocol
+nsMsgProtocol <|-- nsPop3Protocol
+nsIPop3Protocol <|-- nsPop3Protocol
+nsIMsgAsyncPromptListener <|-- nsPop3Protocol
+msgIOAuth2ModuleListener <|-- nsPop3Protocol
+nsIProtocolProxyCallback <|-- nsPop3Protocol
+
+@enduml

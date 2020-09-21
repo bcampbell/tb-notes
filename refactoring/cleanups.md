@@ -90,6 +90,11 @@ abbreviatedName etc..
 
 # Smaller stuff
 
+## nsMsgDBFolder has IMAP-specific undelete support
+
+Currently nsMsgDBFolder has special IMAP paths for dealing with mark-as-delete.
+Should promote mark-as-deleted to general folder capability.
+
 ## nsIMsgFolder::incomingServerType could be ditched?
 
 If every folder has a server (which does seem to be the case with

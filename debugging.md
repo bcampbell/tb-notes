@@ -48,6 +48,24 @@ Log levels:
 
 0: disabled, 1: Error, 2: Warning, 3: Info, 4: Debug, 5: Verbose
 
+## Log4Moz stuff
+
+A bunch of javascript modules have logging via Log4Moz (see comm/mailnews/db/gloda/modules/Log4Moz.jsm).
+
+These can log to the javascript console and/or stdout.
+This is controlled by prefs.
+
+E.g., if the loggername is foo, then look for prefs
+   *   foo.logging.console
+   *   foo.logging.dump
+
+Values are: 'Fatal', 'Error', 'Warn', 'Info', 'Config', 'Debug', 'Trace', 'All'.
+
+E.g. to dump all account creation logging (logger: "mail.wizard") to stdout:
+```
+user_pref("mail.wizard.logging.dump", 'All');
+```
+
 ## logging NSPR stuff
 
 eg:

@@ -26,6 +26,15 @@ A folder SHOULD be able to rebuild metadata from raw messages?
   - For local folders, database holds only version of metadata?
   - For IMAP, a lot of metadata comes from server? (read, tags...)
 
+Folder naming can be constrained by protocol (and filesystem).
+
+Messages can be moved between folders.
+
+Messages in folders can be deleted
+  - Some protocols (eg IMAP) support mark-as-deleted (and an undelete operation)
+  - Deletion can mean move-to-trash or actual deletion.
+
+
 more to come.
 
 ## IDEAS
@@ -40,7 +49,12 @@ more to come.
 - virtual folders should be own class rather than a flag on other classes?
 
 - message database is currently per-folder. Should be per-server, at least,
-  maybe even global.
+  maybe even global. There are Bug to track this (TODO)
   rationale: avoid storing multiple copies of the same message
   Q: where does the actual message reside on filesystem?
+
+- Why do we need all the per-protocol folder types?
+  Can we just have a core folder class which implements all the required features?
+  (with maybe a separate class for virtual folders).
+  What would the folder-protocol interface need to look like?
 

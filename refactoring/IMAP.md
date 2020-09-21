@@ -1,5 +1,9 @@
 # IMAP - issues
 
+## Doess nsImapProtocol actually use any of nsMsgProtocol?
+
+How much? Does nsMsgProtocol still make sense?
+
 ## nsImapUrl is stateful.
 
 Not just in IMAP - all the nsMsgMailNewsUrl-derived classes are affected.
