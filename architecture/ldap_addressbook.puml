@@ -1,0 +1,57 @@
+@startuml
+
+interface nsIAbDirectory
+interface nsIAbCollection
+interface nsIAbItem
+interface nsIAbDirectorySearch
+interface nsIAbLDAPDirectory
+
+interface nsIAbDirectoryQueryArguments
+
+interface nsIAbDirSearchListener {
+    void onSearchFinished(in long aResult, in AString aErrorMsg)
+    void onSearchFoundCard(in nsIAbCard aCard)
+}
+
+interface nsIAbDirectoryQuery {
+    doQuery(...)
+    stopQuery(...)
+}
+
+interface nsIAbDirectoryQueryResultListener {
+    void onQueryFoundCard(in nsIAbCard aCard)
+    void onQueryResult(in long aResult, in long aErrorCode)
+    // these can be called from another thread
+}
+
+
+nsIAbDirectory <|-- nsAbDirProperty
+nsSupportsWeakReference <|-- nsAbDirProperty
+
+nsAbDirProperty <|-- nsAbLDAPDirectory
+nsIAbLDAPDirectory <|-- nsAbLDAPDirectory
+
+nsIAbDirectoryQuery <|-- nsAbLDAPDirectoryQuery
+nsIAbDirectoryQueryResultListener <|-- nsAbLDAPDirectoryQuery
+
+nsAbLDAPListenerBase <|-- nsAbQueryLDAPMessageListener
+
+nsILDAPMessageListener <|-- nsAbLDAPListenerBase 
+
+
+interface nsILDAPMessageListener {
+    void onLDAPMessage(in nsILDAPMessage aMessage)
+    void onLDAPInit(in nsILDAPConnection aConn, in nsresult aStatus)
+}
+
+interface nsIDNSListener {
+    onLookupComplete(...)
+    onLookupByTypeComplete(...)
+}
+
+interface nsIObserver {
+    observe(...)
+}
+
+@enduml
+

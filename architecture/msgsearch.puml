@@ -1,0 +1,36 @@
+@startuml
+
+interface nsIMsgSearchScopeTerm
+interface nsIUrlListener
+interface nsIMsgSearchAdapter
+interface nsIMsgSearchValidityTable
+interface nsIMsgSearchTerm
+interface nsIMsgSearchValidityManager
+
+class nsMsgSearchValidityManager
+nsIMsgSearchValidityManager <|-- nsMsgSearchValidityManager
+
+class nsMsgSearchValidityTable
+nsIMsgSearchAdapter <|-- nsMsgSearchValidityTable
+
+class nsMsgSearchAdapter
+nsIMsgSearchAdapter <|-- nsMsgSearchAdapter
+
+class nsMsgSearchOfflineMail
+nsMsgSearchAdapter <|-- nsMsgSearchOfflineMail
+nsIUrlListener <|-- nsMsgSearchOfflineMail
+
+' online (IMAP) folders
+class nsMsgSearchOnlineMail
+nsMsgSearchAdapter <-- nsMsgSearchOnlineMail
+
+class nsMsgSearchOfflineNews
+nsMsgSearchOfflineMail <|-- nsMsgSearchOfflineNews
+
+' search XPAT-capable news servers
+class nsMsgSearchNews
+nsMsgSearchAdapter <|-- nsMsgSearchNews
+
+
+
+@enduml

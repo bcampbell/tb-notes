@@ -208,4 +208,24 @@ Currently all callers have to manually set the loadInfo attr themselves
 
 Used only by tests, not main code.
 
+## remove nsIAbDirectoryQueryResultListener (used only by C++)
+
+obsoleted by nsIAbDirSearchListener?
+
+
+## tidy up nsMsgDBFolder::GetPurgeThreshold()
+
+should just return `int64_t`, in bytes. 
+(currently returns threshold in KB).
+
+## Replace PLDHashTable use with HashMap<> (or whatever).
+
+Used in two places:
+1) nsMsgDatabase (see Bug 1417018)
+2) nsBayesianFilter
+
+## GetOrCreateJunkFolder() is a bit insane.
+
+- reimplement with GetExistingFolder(), not GetOrCreateFolder().
+
 

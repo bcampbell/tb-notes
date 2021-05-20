@@ -36,9 +36,3 @@ Following:
 
     0:44.70 pid:14886 [14886, Main Thread] WARNING: NS_ENSURE_TRUE(mHiddenWindow) failed: file /fast/ben/tb/mozilla/xpfe/appshell/nsAppShellService.cpp, line 783
 
-# OS.File.Directory.Iterator doesn't support array comprehensions and iteration?
-
-Docs suggest it does, but it doesn't seem to work.
-Have to use iterator.forEach() instead?
-NOTE: try for..of (might have been using for..in)
-

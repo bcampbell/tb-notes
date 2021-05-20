@@ -11,9 +11,12 @@ in $HOME/.ctags:
     --langmap=idl:.idl
     --regex-idl=/interface\s+([a-zA-Z0-9_]+)\s*:/\1/d,definition/
 
+[from: https://github.com/majutsushi/etc/blob/master/ctags]
+
+
 invocation:
 
-    $ ctags -R --languages=C,C++,idl --exclude='obj-x86_64-pc-linux-gnu/*' --exclude='*dist\/include*' --exclude='*[od]32/*' --exclude='*[od]64/*' --exclude '.hg' .
+    $ ctags -R --languages=C,C++,xpidl --exclude=obj-x86_64-pc-linux-gnu --exclude=objdir-tb-asan --exclude=third-party --exclude=node_modules --exclude=.hg .
 
 # cleanup .orig and .rej files from dirs
 

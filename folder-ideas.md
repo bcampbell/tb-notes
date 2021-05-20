@@ -34,7 +34,6 @@ Messages in folders can be deleted
   - Some protocols (eg IMAP) support mark-as-deleted (and an undelete operation)
   - Deletion can mean move-to-trash or actual deletion.
 
-
 more to come.
 
 ## IDEAS
@@ -52,9 +51,16 @@ more to come.
   maybe even global. There are Bug to track this (TODO)
   rationale: avoid storing multiple copies of the same message
   Q: where does the actual message reside on filesystem?
+  (note: There are already some hacks for sharing emails over multiple gmail
+  folders!)
 
 - Why do we need all the per-protocol folder types?
   Can we just have a core folder class which implements all the required features?
   (with maybe a separate class for virtual folders).
   What would the folder-protocol interface need to look like?
+
+-  Same goes for database types: nsMailDatabase, nsNewsDatabase, nsImapMailDatabase etc
+
+- Non-local folders shouldn't have msgStore set (eg Virtual folders, online-only IMAP, etc). (from Bug 1533624).
+
 
