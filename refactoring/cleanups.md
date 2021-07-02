@@ -88,6 +88,13 @@ Prime candidates to swap over in nsIMsgFolder: name, prettyName,
 abbreviatedName etc..
 
 
+# Medium cleanups
+
+## Ditch nsIMsgFolder.folderURL?
+
+Is nsIMsgFolder.URI essentially the same thing? Unsure.
+Only used in a few places.
+
 # Smaller stuff
 
 ## nsMsgDBFolder has IMAP-specific undelete support
@@ -227,5 +234,21 @@ Used in two places:
 ## GetOrCreateJunkFolder() is a bit insane.
 
 - reimplement with GetExistingFolder(), not GetOrCreateFolder().
+
+## nsMsgProtocol::DoGSSAPIStep1() - convert username param to AString
+
+It's currently `const char*`, which seems messy. Used in three places,
+two of which already have to convert from a string class.
+
+## Tidy up nsImapMailFolder::DeleteStoreMessages().
+
+Unify with other folder implementations. Nothing IMAP-specific about it.
+
+
+# Trivial stuff
+
+## nsMsgMailboxParser doesn't need to inherit from nsIRequestObserver
+
+It already implements nsIStreamListener, which inherits nsIRequestObserver.
 
 

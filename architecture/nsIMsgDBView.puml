@@ -1,0 +1,55 @@
+@startuml
+
+interface nsIMsgDBView
+
+interface nsIDBChangeListener
+
+interface nsITreeView
+
+interface nsIJunkMailClassificationListener {
+    onMessageClassified(...)
+}
+
+interface nsIMsgCopyServiceListener
+
+interface nsIMsgSearchNotify {
+  onSearchHit(...)
+  onSearchDone(...)
+  onNewSearch(...)
+}
+
+class nsMsgDBView
+nsIMsgDBView <|-- nsMsgDBView
+nsIDBChangeListener <|-- nsMsgDBView
+nsITreeView <|-- nsMsgDBView
+nsIJunkMailClassificationListener <|-- nsMsgDBView
+
+class nsMsgGroupView
+nsMsgDBView <|-- nsMsgGroupView
+
+class nsMsgQuickSearchDBView
+nsMsgThreadedDBView <|-- nsMsgQuickSearchDBView
+nsIMsgSearchNotify <|-- nsMsgQuickSearchDBView
+
+class nsMsgThreadedDBView
+nsMsgGroupView <|-- nsMsgThreadedDBView
+
+class nsMsgThreadsWithUnreadDBView
+nsMsgThreadedDBView <|-- nsMsgThreadsWithUnreadDBView
+
+class nsMsgWatchedThreadsWithUnreadDBView
+nsMsgThreadedDBView <|-- nsMsgWatchedThreadsWithUnreadDBView
+
+class nsMsgSearchDBView
+nsMsgGroupView <|-- nsMsgSearchDBView
+nsIMsgCopyServiceListener <|-- nsMsgSearchDBView
+nsIMsgSearchNotify <|-- nsMsgSearchDBView
+
+class nsMsgXFVirtualFolderDBView
+nsMsgSearchDBView <|-- nsMsgXFVirtualFolderDBView
+
+
+' behind #ifdef DOING_CACHELESS_VIEW
+' nsMsgDBView <|-- nsMsgCachelessView
+@enduml
+

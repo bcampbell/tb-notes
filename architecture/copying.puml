@@ -1,0 +1,95 @@
+@startuml
+left to right direction
+
+interface nsICopyMessageListener {
+  beginCopy(message)
+  startMessage()
+  copyData(aIStream, aLength)
+  endMessage(key)
+  endCopy(copySucceeded)
+  endMove(moveSucceeded)
+}
+
+interface nsIUrlListener {
+  OnStartRunningUrl(...)
+  OnStopRunningUrl(...)
+}
+
+interface nsIDBChangeListener {
+  onHdrFlagsChanged(...)
+  onHdrDeleted(...)
+  onHdrAdded(...)
+  onParentChanged(...)
+  onAnnouncerGoingAway(...)
+  onReadChanged(...)
+  onJunkScoreChanged(...)
+  onHdrPropertyChanged(...)
+  onEvent(...)
+}
+
+
+interface nsIMsgCopyService {
+  // these take an nsIMsgCopyServiceListener param
+  CopyMessages(...)
+  copyFolders(...)
+  CopyFileMessage(...)
+  NotifyCompletion(...)
+}
+
+note top of nsIMsgCopyService
+  The copy service queues up copy operations, but the actual work is
+  performed by folders.
+end note
+
+
+interface nsIMsgCopyServiceListener {
+  OnStartCopy();
+  OnProgress(...)
+  SetMessageKey(...)
+  GetMessageId(...)
+  OnStopCopy(status)
+}
+
+interface nsIMsgFolderNotificationService
+
+note top of nsIMsgFolderNotificationService {
+  Has a list of registered listeners, and notification functions which
+  correspond to the callbacks in nsIMsgFolderListener.
+}
+
+interface nsIMsgFolderListener {
+  msgAdded(...)
+  msgsClassified(...)
+  msgsJunkStatusChanged(...)
+  msgsDeleted(...)
+  msgsMoveCopyCompleted(...)
+  msgKeyChanged(...)
+  msgUnincorporatedMoved(...)
+  folderAdded(...)
+  folderDeleted(...)
+  folderMoveCopyCompleted(...)
+  folderRenamed(...)
+  folderCompactStart(...)
+  folderCompactFinish(...)
+  folderReindexTriggered(...)
+}
+
+interface nsIFolderListener {
+  OnItemAdded(...)
+  OnItemRemoved(...)
+  OnItemPropertyChanged(...)
+  OnItemIntPropertyChanged(...)
+  OnItemBoolPropertyChanged(...)
+  OnItemUnicharPropertyChanged(...)
+  OnItemPropertyFlagChanged(...)
+  OnItemEvent(...)
+}
+
+
+
+
+
+
+
+}
+

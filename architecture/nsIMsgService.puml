@@ -1,0 +1,73 @@
+@startuml
+left to right direction
+
+interface nsIMsgMessageService {
+CopyMessage(...)
+  CopyMessages(...)
+  DisplayMessage(...)
+  openAttachment(...)
+  SaveMessageToDisk(...)
+  getUrlForUri(...)
+  DisplayMessageForPrinting(...)
+  Search(...)
+  streamMessage(...)
+  streamHeaders(...)
+  isMsgInMemCache(...)
+  messageURIToMsgHdr(...)
+}
+
+interface nsIMailboxService {
+  ParseMailbox(...)
+}
+
+interface nsIMsgMessageFetchPartService {
+  fetchMimePart(...)
+}
+
+interface nsIProtocolHandler {
+  scheme
+  defaultPort
+  protocolFlags
+  newChannel(uri, loadInfo)
+  allowPort(port, scheme)
+}
+
+interface nsIMsgProtocolInfo {
+}
+
+interface nsIContentHandler {
+}
+
+
+interface nsINntpService {
+}
+
+interface nsICommandLineHandler {
+}
+
+
+
+class nsMailboxService
+nsIMailboxService <|-- nsMailboxService
+nsIMsgMessageService <|-- nsMailboxService
+nsIMsgMessageFetchPartService <|-- nsMailboxService
+nsIProtocolHandler <|-- nsMailboxService
+
+class nsImapService
+nsIImapService <|-- nsImapService
+nsIMsgMessageService <|-- nsImapService
+nsIMsgMessageFetchPartService <|-- nsImapService
+nsIProtocolHandler <|-- nsImapService
+nsIMsgProtocolInfo <|-- nsImapService
+nsIContentHandler <|-- nsImapService
+
+class nsNntpService
+nsINntpService <|-- nsNntpService
+nsIMsgMessageService <|-- nsNntpService
+nsIMsgMessageFetchPartService <|-- nsNntpService
+nsIProtocolHandler <|-- nsNntpService
+nsIMsgProtocolInfo <|-- nsNntpService
+nsICommandLineHandler <|-- nsNntpService
+nsIContentHandler <|-- nsNntpService
+
+@enduml

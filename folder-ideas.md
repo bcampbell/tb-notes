@@ -1,6 +1,6 @@
 # Ideas on folders:
 
-## CORE
+## Core
 
 A folder MUST track meta-data for it's contents
   - full list of messages
@@ -36,7 +36,14 @@ Messages in folders can be deleted
 
 more to come.
 
-## IDEAS
+## Questions
+
+What is the policy on default folders for various servers?
+  - understanding policy is first step to cleaning up the code.
+  - eg what conditions cause INBOX to be automagically created?
+  - Follow down logic in nsMsgAccount::SetIncomingServer() for various servertypes.
+
+## Ideas
 
 - think of folder as list of messages + metadata.
   Implementations may track servers (IMAP, news, rss, pop), but from outside,

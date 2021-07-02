@@ -1,0 +1,82 @@
+@startuml
+left to right direction
+
+interface nsIMsgFolder
+interface nsIMsgLocalMailFolder
+interface nsIMsgImapMailFolder
+interface nsIImapMailFolderSink
+interface nsIImapMessageSink
+interface nsIMsgNewsFolder
+interface nsIInterfaceRequestor
+
+interface nsICopyMessageListener {
+  beginCopy(message)
+  startMessage()
+  copyData(aIStream, aLength)
+  endMessage(key)
+  endCopy(copySucceeded)
+  endMove(moveSucceeded)
+}
+
+interface nsIUrlListener {
+  OnStartRunningUrl(...)
+  OnStopRunningUrl(...)
+}
+
+interface nsIDBChangeListener {
+  onHdrFlagsChanged(...)
+  onHdrDeleted(...)
+  onHdrAdded(...)
+  onParentChanged(...)
+  onAnnouncerGoingAway(...)
+  onReadChanged(...)
+  onJunkScoreChanged(...)
+  onHdrPropertyChanged(...)
+  onEvent(...)
+}
+
+interface nsIMsgFilterHitNotify {
+  applyFilterHit(filter, msgWindow);
+}
+
+interface nsIJunkMailClassificationListener {
+  onMessageClassified(...)
+}
+
+interface nsIMsgTraitClassificationListener {
+  onMessageTraitsClassified(...)
+}
+
+class nsMsgDBFolder
+nsSupportsWeakReference <|-- nsMsgDBFolder
+nsIMsgFolder <|-- nsMsgDBFolder
+nsIDBChangeListener <|-- nsMsgDBFolder
+nsIUrlListener <|-- nsMsgDBFolder
+nsIJunkMailClassificationListener <|-- nsMsgDBFolder
+nsIMsgTraitClassificationListener <|-- nsMsgDBFolder
+
+
+class nsMsgLocalMailFolder
+nsMsgDBFolder <|-- nsMsgLocalMailFolder
+nsIMsgLocalMailFolder <|-- nsMsgLocalMailFolder
+nsICopyMessageListener <|-- nsMsgLocalMailFolder
+
+
+class nsImapMailFolder
+nsMsgDBFolder <|-- nsImapMailFolder
+nsIMsgImapMailFolder <|-- nsImapMailFolder
+nsIImapMailFolderSink <|-- nsImapMailFolder
+nsIImapMessageSink <|-- nsImapMailFolder
+nsICopyMessageListener <|-- nsImapMailFolder
+nsIMsgFilterHitNotify <|-- nsImapMailFolder
+
+class nsMsgNewsFolder
+nsMsgDBFolder <|-- nsMsgNewsFolder
+nsIMsgNewsFolder <|-- nsMsgNewsFolder
+
+class JaBaseCppMsgFolder
+nsMsgDBFolder <|-- JaBaseCppMsgFolder
+nsIInterfaceRequestor <|-- JaBaseCppMsgFolder
+
+@enduml
+
