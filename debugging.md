@@ -74,12 +74,13 @@ eg:
 
 # Assertions
 
+By default, `NS_ASSERTION` just prints out a warning message and continues.
 
-    https://developer.mozilla.org/en-US/docs/Mozilla/Debugging/XPCOM_DEBUG_BREAK
-
-eg:
-
-    $ export XPCOM_DEBUG_BREAK=suspend
+Use XPCOM_DEBUG_BREAK to change this, eg:
+```
+$ export XPCOM_DEBUG_BREAK=suspend
+```
+other values: break, stack
 
 
 # Force debug break in code:

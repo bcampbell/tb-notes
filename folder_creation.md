@@ -1,5 +1,10 @@
 # Folder Creation functions
 
+## IMAP notes
+
+`nsImapProtocol` calls `m_imapServerSink->PossibleImapMailbox()` when a folder
+is discovered.
+
 
 ## nsIMsgFolder
 

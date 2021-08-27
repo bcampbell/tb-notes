@@ -1,0 +1,105 @@
+@startuml
+
+interface nsIInputStream {
+  close()
+  available()
+  read(...)
+  readSegments(...)
+  isNonBlocking()
+}
+
+interface nsIOutputStream {
+  close()
+  flush()
+  write(...)
+  writeFrom(...)
+  writeSegments(...)
+  isNonBlocking()
+}
+
+interface nsITellableStream {
+  tell()
+}
+
+interface nsISeekableStream {
+  seek(whence, offset)
+  setEOF()
+}
+nsITellableStream <|--nsISeekableStream
+
+interface nsILineInputStream {
+  readLine(...);
+}
+
+interface nsIFileMetadata {
+  size
+  lastModified
+}
+
+interface nsIFileInputStream {
+  init(file, ioFlags, perm, behaviorFlags)
+}
+nsIInputStream <|-- nsIFileInputStream
+
+interface nsIFileStream {
+  init(file, ioFlags, perm, behaviorFlags)
+}
+
+
+interface nsIFileOutputStream {
+  init(file, ioFlags, perm, behaviorFlags)
+  preallocate(length)
+}
+nsIOutputStream <|-- nsIFileOutputStream
+
+interface nsISafeOutputStream {
+  finish()
+}
+
+interface nsIIPCSerializableInputStream {
+}
+
+interface nsICloneableInputStream {
+  readonly boolean clonable
+  clone()
+}
+
+interface nsICloneableInputStreamWithRange {
+  cloneWithRange(start, length);
+}
+nsICloneableInputStream <|-- nsICloneableInputStreamWithRange 
+
+
+class nsFileStreamBase
+nsISeekableStream <|-- nsFileStreamBase
+nsIFileMetadata <|-- nsFileStreamBase
+
+class nsFileInputStream
+nsFileStreamBase <|-- nsFileInputStream
+nsIFileInputStream <|-- nsFileInputStream
+nsILineInputStream <|-- nsFileInputStream
+nsIIPCSerializableInputStream <|-- nsFileInputStream
+nsICloneableInputStream  <|-- nsFileInputStream
+
+
+
+class nsFileOutputStream
+nsFileStreamBase <|-- nsFileOutputStream
+nsIFileOutputStream <|-- nsFileOutputStream
+
+class nsAtomicFileOutputStream
+nsFileOutputStream <|-- nsAtomicFileOutputStream
+nsISafeOutputStream <|-- nsAtomicFileOutputStream
+
+class nsSafeFileOutputStream
+nsAtomicFileOutputStream <|-- nsSafeFileOutputStream
+
+class nsFileStream
+nsFileStreamBase <|-- nsFileStream
+nsIInputStream <|-- nsFileStream
+nsIOutputStream <|-- nsFileStream
+nsIFileStream <|-- nsFileStream
+
+
+
+@enduml

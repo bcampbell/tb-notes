@@ -1,0 +1,50 @@
+@startuml
+
+
+interface nsIDBChangeListener
+
+interface nsIMsgParseMailMsgState
+
+interface nsIRequestObserver {
+    onStartRequest(request)
+    onStartRequest(request, status)
+}
+
+interface nsIStreamListener {
+  onDataAvailable(request, inStream, offset, cnt)
+}
+nsIRequestObserver <|-- nsIStreamListener
+
+
+interface nsIMsgFilterHitNotify {
+  applyFilterHit(filter, window)
+}
+
+
+class nsByteArray
+
+class nsMsgLineBuffer {
+  BufferInput(buf,cnt)
+  Flush()
+  virtual HandleLine(buf, cnt)
+}
+nsByteArray <|-- nsMsgLineBuffer
+
+class nsParseMailMessageState
+nsIMsgParseMailMsgState <|-- nsParseMailMessageState
+nsIDBChangeListener <|-- nsParseMailMessageState
+
+class nsMsgMailboxParser
+nsIStreamListener <|-- nsMsgMailboxParser
+nsParseMailMessageState <|-- nsMsgMailboxParser
+nsMsgLineBuffer <|-- nsMsgMailboxParser
+
+
+class nsParseNewMailState
+nsMsgMailboxParser <|-- nsParseNewMailState
+nsIMsgFilterHitNotify <|-- nsParseNewMailState
+
+class nsMsgLineStreamBuffer
+
+
+@enduml
