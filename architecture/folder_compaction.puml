@@ -1,0 +1,39 @@
+@startuml
+left to right direction
+
+interface nsICopyMessageStreamListener {
+  void Init(in nsICopyMessageListener destination)
+  void StartMessage()
+  void EndMessage(in nsMsgKey key)
+  void EndCopy(in nsISupports url, in nsresult aStatus)
+}
+
+interface nsIRequestObserver {
+  onStartRequest(...)
+  onEndRequest(...)
+}
+
+interface nsIStreamListener {
+  onDataAvailable(...)
+}
+nsIRequestObserver <|-- nsIStreamListener
+
+interface nsIUrlListener {
+  OnStartRunningUrl(...)
+  OnStopRunningUrl(...)
+}
+
+interface nsIMsgFolderCompactor {
+  compact(...)
+  compactFolders(...)
+}
+
+
+class nsFolderCompactState
+nsIMsgFolderCompactor <|-- nsFolderCompactState
+nsIStreamListener <|-- nsFolderCompactState
+nsICopyMessageStreamListener <|-- nsFolderCompactState
+nsIUrlListener <|-- nsFolderCompactState
+
+@enduml
+

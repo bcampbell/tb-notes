@@ -31,10 +31,15 @@ Even in the RFC2822 message (which would usually be CRLF).
 Should we do CRLF <--> LF conversions when reading/writing messages to mbox?
 (gut feeling: no - it's an irreversible transformation, and it seems like we should be able to retreive messages _exactly_ byte-for-byte as we write them in).
 
+https://www.loc.gov/preservation/digital/formats/fdd/fdd000383.shtml states that mbox always has a blank line after the RFC2822 message, and before the "From " separator line (except for the first message).
+The example mbox on https://en.wikipedia.org/wiki/Mbox seems to back this up.
+
+
 ## Other mbox documentation
 
     https://tools.ietf.org/html/rfc4155
     http://kb.mozillazine.org/Importing_and_exporting_your_mail#Mbox_files
     http://www.qmail.org/man/man5/mbox.html
     https://en.wikipedia.org/wiki/Mbox
+    https://www.loc.gov/preservation/digital/formats/fdd/fdd000383.shtml
 

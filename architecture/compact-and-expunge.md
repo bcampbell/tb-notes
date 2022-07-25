@@ -1,6 +1,5 @@
 # Notes on Compact/Expunge
 
-
 - Compact mostly refers to removing deleted messages from the mailstore.
   - only really required to compress gaps on mbox
   - on maildir deletes actually delete the message? (check this!)

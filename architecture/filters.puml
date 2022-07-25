@@ -1,0 +1,35 @@
+@startuml
+
+
+interface nsIMsgFilterService
+
+
+
+interface nsIMsgFilter
+nsIMsgFilter "1" *-- "many" nsIMsgSearchTerm : searchTerms
+
+
+interface nsIMsgFilterList
+nsIMsgFilterList "1" *-- "many" nsIMsgFilter : contains
+
+interface nsIMsgSearchTerm {
+}
+
+
+interface nsIMsgFilterHitNotify {
+    bool applyFilterHit(filter, window)
+}
+note right: "Called by nsMsgFilterList::ApplyFiltersToHdr()"
+
+class nsMsgFilterService
+nsIMsgFilterService <|-- nsMsgFilterService
+
+class nsMsgFilter
+nsIMsgFilter <|-- nsMsgFilter
+
+class nsMsgFilterList
+nsIMsgFilterList <|-- nsMsgFilterList
+
+class nsMsgSearchTerm
+nsIMsgSearchTerm <|-- nsMsgSearchTerm
+@enduml

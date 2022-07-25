@@ -1,4 +1,29 @@
+# Linux perf tools
 
+set paranoia level with sysctl
+
+    $ sudo sysctl kernel.perf_event_paranoid=0
+
+run app, get pid, collect samples:
+    $ perf record -g -F 999 -p <PID>
+stop sampling with CTRL-c
+add `--call-graph dwarf` if it looks like it's picking up wrong symbols?
+
+
+
+
+
+Convert to load into profiler.firefox.com:
+    $ perf script -F +pid > /tmp/test.perf
+
+
+
+NOTE: need perf matching your kernel version.
+eg debian:
+$ apt install linux-perf-5.15
+
+
+# built-in profiling?
 
 ```
 [09:11] <florian> In case this is of interest to anybody, here is a startup + shutdown profile of Thunderbird: http://bit.ly/2IrE40j

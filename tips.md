@@ -23,4 +23,7 @@ invocation:
     $ find . -name "*.orig" -delete
     $ find . -name "*.rej" -delete
 
+# static analysis on outgoing files in hg:
+
+  $ ./mach static-analysis check --outgoing
 
