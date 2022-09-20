@@ -5,6 +5,7 @@ nsIMsgCopyService is a sort of front end for copying messages about, without wor
 The copy functions usually support moving too (via a bool param).
 
 can copy/move:
+
 - messages
 - file messages (RFC format)
 - folders
@@ -22,13 +23,16 @@ shortcuts (eg maildir can perform moves by just renaming files).
 ### actors involved
 
 `nsMsgCopyService`
+
   - implements `nsIMsgCopyService`
   - Central point for kicking off copy/move operations.
   - Queues up multiple operations so only one is running at a time.
 
 `nsMsgLocalMailFolder`
+
   - implements `nsIMsgFolder`
   - implements `nsICopyMessageListener`:
+
     ```
     void beginCopy();
     void startMessage();
@@ -39,7 +43,9 @@ shortcuts (eg maildir can perform moves by just renaming files).
     ```
 
 `nsICopyMessageStreamListener`
+
   - provides:
+
     ```
     void init(in nsICopyMessageListener destination);
     void startMessage();
@@ -48,6 +54,7 @@ shortcuts (eg maildir can perform moves by just renaming files).
     ```
 
   - implements nsIStreamListener (and nsIRequestObserver) to provide:
+
     ```
     onStartRequest()
     onDataAvailable()
@@ -55,6 +62,7 @@ shortcuts (eg maildir can perform moves by just renaming files).
     ```
 
 `nsCopyMessageStreamListener`
+
   - Implements `nsICopyMessageStreamListener`.
     ```
     void init(in nsICopyMessageListener destination);
@@ -80,6 +88,7 @@ shortcuts (eg maildir can perform moves by just renaming files).
     - `OnDataAvailable()` => call destination `CopyData()`.
 
 `nsMailboxService`
+
   - implements `nsIMsgMessageService` (and `nsIMsgMessageFetchPartService`)
   - implements `nsIMsgMessageService` to provide:
     - StreamMessage()
@@ -92,6 +101,7 @@ shortcuts (eg maildir can perform moves by just renaming files).
         message starts and ends...
 
 `nsMailboxProtocol`
+
   - Responsible for running an `nsIMailboxUrl`.
   - Derives from the base nsMsgProtocol class.
     - Provides state machine and async streaming
@@ -103,6 +113,7 @@ When copying from a local folder into another local folder,
 nsMsgCopyService.copyMessages() calls...
 
 `nsMsgLocalMailFolder::CopyMessages()` on the dest folder:
+
   - Takes a `nsIMsgCopyServiceListener` param. This is for the copy
     operation overall, and shouldn't be confused with other listeners used
     internally: `nsICopyMessageListener` and `nsICopyMessageStreamListener`
@@ -137,11 +148,13 @@ messages from the source (this is the "general" case).
   - done (if failed, re-enable message count notifications on dest folder).
 
 `nsMsgLocalMailFolder::CopyMessageTo()`
+
   - Creates an nsCopyMessageStreamListener, passing the dest folder (this) in as a `nsICopyMessageListener`.
   - finds the nsIMsgMessageService for the source message and stores it in the local copystate.
   - calls nsIMsgMessageService.copyMessage()
 
 `nsMailboxService::CopyMessage()/CopyMessages()`:
+
   - CopyMessage() and CopyMessages() both craft `nsIMailboxUrl` URLs, create
     a `nsMailboxProtocol` object and call `LoadUrl()` upon it, passing the
     nsIStreamListener as the displayConsumer param.
@@ -152,6 +165,7 @@ messages from the source (this is the "general" case).
     maintained on the URL object! see `nsIMailboxUrl.getMoveCopyMsgHdrForIndex()`.
 
 `nsMailboxProtocol::Initialize()`:
+
   - Faffs about with setting the message size on the URL object. TODO: what
     does it do with multiple messages? Is the size only needed for the
     progress updates?
@@ -165,6 +179,7 @@ messages from the source (this is the "general" case).
       prempted by `LoadUrl()`).
 
 `nsMailboxProtocol::LoadUrl()`:
+
   - our nsIStreamListener (the `nsCopyMessageStreamListener` we created back
     up in `nsMsgLocalMailFolder::CopyMessageTo()`) is stored as
     `m_channelListener` on the protocol object.
@@ -194,12 +209,14 @@ in `m_channelListener`, and that the point of that listener is to invoke
 The mailboxprotocol nsIStreamListener callbacks will be called as the data flows:
 
 `nsMailboxProtocol::OnStartRequest()`:
+
   - call `m_channelListener->OnStartRequest()`.
     - `nsCopyMessageStreamListener::OnStartRequest()`:
       - calls nsMsgLocalMailFolder.BeginCopy()  (from nsICopyMessageListener)
       - ...TODO...
 
 `nsMailboxProtocol::OnStopRequest()`:
+
   - Lets us know a message has finished.
   - checks the `nsIMailboxUrl` message list and current index.
   - if there are no more messages:
@@ -223,6 +240,7 @@ The mailboxprotocol nsIStreamListener callbacks will be called as the data flows
             - ...TODO...
 
 `nsMailboxProtocol::OnDataAvailable()`:
+
   - not implemented, so `nsMsgProtocol::OnDataAvailable()` is called, which
     just calls nsMailboxProtocol::ProcessProtocolState():
     - we're in `MAILBOX_READ_MESSAGE` state, which just calls
