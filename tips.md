@@ -18,6 +18,10 @@ invocation:
 
     $ ctags -R --languages=C,C++,xpidl --exclude=obj-x86_64-pc-linux-gnu --exclude=objdir-tb-asan --exclude=third-party --exclude=node_modules --exclude=.hg .
 
+better javascript config for ctags?:
+
+https://medium.com/adorableio/modern-javascript-ctags-configuration-199884dbcc1
+
 # cleanup .orig and .rej files from dirs
 
     $ find . -name "*.orig" -delete
