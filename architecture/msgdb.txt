@@ -17,8 +17,10 @@ nsIDBChangeAnnouncer <|-- nsIMsgDatabase
 nsIMsgDatabase <|-- nsMsgDatabase
 
 nsMsgDatabase <|-- nsMailDatabase
-nsMsgDatabase <|-- nsNewsDatabase
 
 nsMailDatabase <|-- nsImapMailDatabase
+
+nsMsgDatabase <|-- nsNewsDatabase
+nsINewsDatabase <|-- nsNewsDatabase
 
 @enduml
