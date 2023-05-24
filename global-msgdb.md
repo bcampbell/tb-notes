@@ -1,38 +1,124 @@
 # notes on experimental global msgdb C++/sqlite
 
-nsMsgDBHdr is a lot thinner than I realised. It's really just a live
-connection to a db.
 
-caching:
+## Current situation
+
+Each folder has it's own mork database.
+Mork doesn't impose a set schema - more like a key-value store.
+Makes it tricky to figure out exactly what's in there.
+Different systems and protocols add their own ad-hoc fields.
+
+nsIMsgDatabase
+- represents DB for a single folder
+- contains messages, folder info, some misc other stuff
+- there are multiple concrete classes for various protocols.
+- DB can have listeners which are notified when messages change.
+
+nsIMsgDBHdr
+- concrete class is nsMsgDBHdr
+- represents a single message
+- nsMsgDBHdr is a lot thinner than I realised. It's really just a live
+  connection to a db.
+- usually linked to message in DB, but can be non-attached (eg when building
+  up new messages).
 - nsMsgDBHdr caches a few fields (flags, references, date etc).
 - nsMsgDatabase caches nsMsgDBHdrs
-- try ditching them all and just relying on sqlite caching
-- failing that, try caching individual fields inside GlobalDB (rather than in
-  nsMsgHdr).
+- messages can (usually) only be in a single folder.
+- changing nsIMsgDBHdr directly doesn't trigger nsIMsgDatabase listener notifications (TODO: Confirm this!)
+
+nsMsgKey (aka `uint32_t`)
+- `nsIMsgDBHdr.messageKey`
+- 32 bit identifier
+- unique within folder
+- IMAP: the message key is set to the UID of the message.
+- IMAP: when UIDVALIDITY changes, the DB is blown away and resynced.
+
+gmail hack
+- specific to gmail IMAP
+- allow messages to appear in more than one folder
+- uses X-GM-MSGID.
+- It's a bit icky.
+
+threading representation
+- nsIMsgThread et al
+- a bit cumbersome and complicated
+- Threads are _within_ folder. No cross-folder threading.
+
+### Problems with current system
+
+- per-folder database makes it an arse to have a conversation view which
+  spans multiple folders (eg likely that some replys might be in your
+  "Sent" folder).
+- The Add-on which did conversation views used the gloda search mechanism
+  hack up cross-folder conversations. Slow, complicated.
+- the gmail multi-folder hack is icky.
+- Nobody understands Mork.
+- loads of voodoo code where folder database handles are nulled to avoid
+  filehandle exhaustion. Unecessary, and means that folder
+  code has to deal with missing database. Overcomplicated and bonkers.
+- commit model is iffy. All code just assumes it can magically change
+  message fields at will, and there are commits peppered around the place.
+
+## The C++/Sqlite plan
+
+- use a single sqlite database for all folders
+- use global 64bit nsMsgKey, not per-folder
+- allow messages to be in more than one folder
+- can now do whole-database queries. Not restricted to within folder.
+- threading representation can now go across folders.
+- keep existing interfaces (nsIMsgDatabase, nsIMsgDBHdr nsIMsgThread) as much
+  as possible to keep existing code working. At least initially.
+- can't do much about iffy commit model yet - just apply all changes
+  immediately as per mork. But eventually it'd be nice (and faster and more
+  error-tolerant) to bound message operations in some sort of transaction.
+
+GlobalDB
+- Underlying class to manage single global DB. Not (yet) exposed to JS.
+- Just add methods ad-hoc for now to support nsIMsgDatabase/nsIMsgHeader etc
+
+nsIMsgDBHdr
+- now represents a view of a message in a specific folder.
+- can have multiple nsIMsgDBHdrs which represent the same message, but in different folders
+- changes made in one hdr should be reflected in others (eg clearing the "UnRead" flag).
+
+nsIMsgDatabase
+- now represents just the messages in a single folder. A subset of full global DB.
 
 
-## Issues
+## Misc Thoughts
 
-### nsIMsgDBHdr
+### Message copying/moving
 
-Should header represent a single message (which could be in multiple folders),
-or should it be a message+folder combo?
-(so the same message could have multiple msgHdrs, one per folder).
+I had originally thought that this would allow us to do trivial message
+copies - just create a new entry for same message, but in the destination
+folder. If we've got a full local copy of a message, then leave it where it is and
+let both entries use that same data.
 
-Current model leans toward a msgHdr being a view of a message in a specific folder.
-So the same message in a different folder would have a different msgHdr.
+However, there are a bunch of reasons I don't think this flies:
+- even with local folders and mbox files, you'd expect the mbox file to exactly
+  match the messages listed in your folder.
+- email messages don't have a proper unique ID (Message-ID can't be relied on)
+- X-GM-MSGID IMAP extension or equivalent does provide a proper unique ID.
 
-Issues with DB caching: some fields are per-message (eg flags), others are
-per-message-per-folder (eg IMAP UID).
+So I think by default we should do dumb full copies as we currently do.
+But for messages that _do_ have a proper unique ID, we should allow them to be
+appear in multiple folders.
+For local messages, this means adding a new DB entry to show the same message
+in multiple folders.
+For IMAP, this would mean extending X-GM-MSGID support to tell the server
+we're just assigning the existing message to another mailbox, not creating a new message.
 
-### Threading
+### Message Threading/conversation view
+
+Conversation view becomes easy if DB provides proper threading info.
 
 How do we deal with showing threads in folders which only have _some_ of the messages?
-Copy a few messages in a large thread from one folder to another. How should those messages be threaded in the second folder?
+eg Copy a few messages in a large thread from one folder to another. How should those messages be threaded in the second folder?
 UI clues? Show "other-folder" messages as ghosted?
 Treat them as a separate mini thread?
 
-How does gmail handle this?
+How does gmail web interface handle this?
+
 
 ### Message storage
 
@@ -43,50 +129,30 @@ Maybe should separate out local storage as a concept (and table to link them).
 
 ### IMAP
 
-Looks like IMAP uses message key to store UID.
-So need to have a dedicated IMAP UID field instead.
-Same probably goes for NNTP.
-Likely to be some odd assumptions in IMAP folder code regarding this which
-will need to be fixed up...
+IMAP uses UID as message key. This is pain.
+We want to let the GlobalDB assign it's own global message keys.
 
-Tuple (Mailbox + UIDVALIDITY + UID) gives individual IMAP message.
-We can represent it as folder+UID in the db maybe (Mailbox + UIDVALIDITY is implied by folder).
+Plan is to change IMAP code to store UID separately.
+
+So need to audit all uses of messageKey in the IMAP code, and figure out which
+ones need to use the separate UID instead.
+This is a big job.
 
 Bottom line: DB should be the only thing setting message keys.
-Could do the work to store explicit UID in existing msgDB, but migration is an issue.
-
-Need to audit all uses of SetMessageKey and GetMessageKey in imap code.
+This work _could_ be done pre-GlobalDB, on the existing mork msgDB, but
+migration is an issue, and probably not worth it. So probably best to do it
+along with the global msgDB work.
 
 ### Commit model
 
-Currently msgDB had pretty ad-hoc commit model.
+
+Currently msgDB has pretty ad-hoc commit model.
 And error handling sucks (waaaaay to easy for partial modifications to
 get into db).
 
 For now, just run without transations or use the existing commit hints.
 But longer-term, the DB should have a better-defined transaction model,
 to improve error handling. 
-
-
-## Future
-
-### Unify database views?
-
-We've currently got per-folder nsMsgDatabase objects, and DB views.
-Seems like this could all be unified, including fulltext indexing (gloda)
-and virtual folders.
-
-We could just have a single view, which takes a filter to match messages of a certain criteria.
-GUI shouldn't have to care how the message list in the view is calculate. It should just be able to say things like:
- - Give me a list of all messages with "grapefruit" in the subject or body text, which are in the "INBOX" folder, sorted by ascending date.
-
-Existing nsMsgDatabase classes become views which return all the messages in a certain folder.
-
-
-TODO: survey existing message db view classes (in C++ and JS).
-
-
-## Misc
 
 ### Use JMAP for data modelling inspiration
 
