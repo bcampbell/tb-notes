@@ -1,0 +1,23 @@
+@startuml
+
+interface nsIUrlListener
+
+interface nsIMsgCopyServiceListener
+
+interface nsIDBChangeListener
+
+class nsImapOfflineSync {
+  init(window, ulrListener, folder, isPseudoOffline)
+  processNextOperation()
+}
+
+nsIUrlListener <|-- nsImapOfflineSync
+nsIMsgCopyServiceListener <|-- nsImapOfflineSync
+nsIDBChangeListener <|-- nsImapOfflineSync
+nsIImapOfflineSync <|-- nsImapOfflineSync
+
+
+class nsImapOfflineDownloader
+nsImapOfflineSync <|-- nsImapOfflineDownloader
+
+@enduml
