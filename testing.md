@@ -34,4 +34,7 @@ eg:
 
 `--log-mach` to get human-readable output.
 
+# gtests (C++ unit tests)
+
+    $ ./mach gtest "Strings.*"
 
