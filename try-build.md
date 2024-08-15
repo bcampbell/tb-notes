@@ -9,23 +9,14 @@ assumes [paths] part in C-C/.hg/hgrc contains:
 
 ## Submitting a try build
 
-Can't seem to get `../mach try ...` to push to correct repo.
-Always seems to push to the default hg.mozilla.org/try server instead.
-
-commit message with try syntax, and a manual push works eg:
-
-    $ cd comm
-    $ hg qnew -m "try: -b do -p linux64,macosx64,win32 -u all" try
-    $ hg push -f -r tip cc-try && hg qpop && hg qdelete try
-
 tests:
     -u all
     -u mozmill
     -u none
 
-platforms:
-    -p linux,linux64,macosx64,win32,win64
-
+```
+    $ hg push-to-try -s ssh://hg.mozilla.org/try-comm-central -m "try: -b do -p all -u all"
+```
 
 ## Try build with changesets from both M-C and C-C
 
