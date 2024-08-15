@@ -44,4 +44,7 @@
 - Kill stateful URLs
   - reduce use of URLs for non-docshell uses
 
+- common filter actions
+  - currently each folder type has their own implementation of filter actions.
+  - should be a single place that handles it.
 
