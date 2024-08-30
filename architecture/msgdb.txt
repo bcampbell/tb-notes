@@ -4,6 +4,13 @@ interface nsISupports
 interface nsIMsgDatabase
 interface nsIDBChangeAnnouncer
 interface nsINewsDatabase
+interface nsIMsgOfflineOpsDatabase {
+  nsIMsgOfflineImapOperation getOfflineOpForKey(in nsMsgKey messageKey, in boolean create);
+  void removeOfflineOp(in nsIMsgOfflineImapOperation op);
+  Array<nsMsgKey> listAllOfflineOpIds();
+  Array<nsMsgKey> listAllOfflineDeletes();
+}
+
 
 class nsMsgDatabase
 class nsMailDatabase
@@ -14,7 +21,9 @@ nsISupports <|-- nsIDBChangeAnnouncer
 
 nsIDBChangeAnnouncer <|-- nsIMsgDatabase
 
-nsIMsgDatabase <|-- nsMsgDatabase
+nsIMsgDatabase <|-- nsIMsgOfflineOpsDatabase
+
+nsIMsgOfflineOpsDatabase <|-- nsMsgDatabase
 
 nsMsgDatabase <|-- nsMailDatabase
 
@@ -23,4 +32,8 @@ nsMailDatabase <|-- nsImapMailDatabase
 nsMsgDatabase <|-- nsNewsDatabase
 nsINewsDatabase <|-- nsNewsDatabase
 
+note bottom of nsNewsDatabase : Used for news folders.
+note left of nsImapMailDatabase : Used for IMAP folders.
+note left of nsMailDatabase : Used for local folders.
+note top of nsIMsgOfflineOpsDatabase : Only implemented by nsMailDatabase.
 @enduml
