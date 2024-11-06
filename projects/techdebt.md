@@ -4,7 +4,7 @@
   - support multiple messages at once? (prevent interleaving)
   - How to transfer UIDs etc?
 
-- kill foldercache
+- kill nsIMsgFolderCache et al
   - not needed after globaldb
 
 - Use nsITransaction properly
@@ -47,4 +47,13 @@
 - common filter actions
   - currently each folder type has their own implementation of filter actions.
   - should be a single place that handles it.
+
+- nsIMsgFolder.msgDatabase should _never_ be null.
+  - Bug 1795178 - "ForceDBClosed() should go away."
+  - load mork data on-the-fly if needed.
+  - simplifies soooo much code.
+  - windows filehandle limit issues go away.
+  - simplifies move to global DB.
+  - ditch DB caching and all the complications there.
+
 

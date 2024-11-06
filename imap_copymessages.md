@@ -52,7 +52,7 @@ When the OnlineMessageCopy() finishes, the imap folder OnStopRunningUrl() is cal
 2. 
 
 
-### `nsImapMailFolder::SetPendingAttributes()`/`UpdatePendingAttributes()`
+### `nsImapMailFolder::SetPendingAttributes()`/`nsImapMailDatabase::UpdatePendingAttributes()`
 
 This is the mechanism which allows local message-copy operations to be performed immediately, and be resolved later when the server-side operation finally completes.
 
@@ -85,15 +85,15 @@ Steps performed:
 3. use BuildIdsAndKeyArray() to generate a UID range string (messageIds) from the src message keys (which really are UIDs)
 4. disable message count notifications on dest folder
 5. For each src message:
-  1. Get or create offline op in the sourceDB (message might already be the subject of some offline operation!)
+  1. Create a offline op in the sourceDB - kMsgMoved for move ops, kMsgCopy for copies.
   2. Set the nsMsgFolderFlags::OfflineEvents flag on the source folder.
-  3. Jump through hoops to handle case of message being the result of an offline move... (glossing over that case here).
+  3. Jump through hoops to handle case of message already being represented by an offline op (glossing over that case here).
   4. Add the destination folder to the offline op.
-  5. Create a new msgHdr in the dest DB, using `CopyHdrFromExisingHdr()` to copy the hdr in the src DB (addHdrToDB is true).
+  5. Create a new msgHdr in the dest DB, using `CopyHdrFromExisingHdr()` to copy the hdr in the src DB (addHdrToDB is true). Generates a fake msgKey for the new message.
   6. Set the `pseudoHdr` property upon the dest msgHdr.
   7. If there's an offline copy of the full message in the messageStore, copy it.
      Else just mark the message as "not offline" (`database->MarkOffline(key,false);`)
-  8. Get or create offline op in dest DB, adding the src folder and src msgKey.
+  8. Create a kMoveResult offline op in the dest DB (the op holds the src folder uri and src msgKey). ODDNESS: It appears to do this even for copy operations?
 6. reenable message count notifications on dest folder
 7. Create an `nsImapOfflineTxn` object to represent the copy (`addHdrMsgTxn`).
    Txn type is nsIMsgOfflineImapOperation::kAddedHeader.
@@ -104,8 +104,11 @@ Steps performed:
 11. Perform a commit on the dest DB (src DB is only committed for move operation).
 12. Call SummaryChanged() on both dest and src folders
 13. Call `txnMgr->EndBatch()`.
-14. If any messages were copied, invoke `nsIMsgFolderNotificationService.notifyMsgsMoveCopyCompleted()`
-15. Tell the copy service that a copy has completed (although presumably any IMAP copy operation is still in flight).
+14. If we're doing a move, and we're on the same server (and IMAP settings are not just "mark deleted"), then:
+    1. Delete the local copy of the message, if any (in the srcFolder msgStore).
+    2. Delete the msgHdr from the src DB. This will leave the kMsgMoved offline op in the srcDB (see step 5.1 above), indexed by the now-deleted src msgkey.
+15. If any messages were copied, invoke `nsIMsgFolderNotificationService.notifyMsgsMoveCopyCompleted()`
+16. Tell the copy service that a copy has completed (although presumably any IMAP copy operation is still in flight).
 
 
 ### nsImapOfflineSync

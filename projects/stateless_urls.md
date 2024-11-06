@@ -73,6 +73,8 @@ Some random thoughts:
 
 - Documenting the existing URL schemes in detail would help.
 - Most of the C++ URL classes inherit nsMsgMailNewsUrl, so trying to strip that back to the bone might be a good starting point.
+  - nsMsgMailNewsUrl::IsUrlType() is only called in 1 or two places.
+  - Go through all the other accessors and start peeling them off.
 - Converting nsMailboxService might be a good place to start - it's reasonably self-contained.
 - Or maybe the JS POP3 implementation - it'd be quicker to poke about in JS.
 
