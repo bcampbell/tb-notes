@@ -1,0 +1,118 @@
+I've been rewriting the folder compaction code.
+It's in Bug 1890448 [1] so you can find the code there, but I thought
+I'd write up some notes on it here to get a bit more public exposure.
+
+The current folder compaction code is fiddly to deal with and hard to
+fix bugs in. There was a big series of patches landed in
+Bug 1756520 [2] which helped a bit by straightening out a lot of the
+surrounding scaffolding, but left the core compaction code mostly as-is.
+So this tackles the rest of it.
+
+## Quick recap: what is folder compaction?
+
+Locally-stored messages are (by default) stored in a single mbox file,
+one per folder. When you delete messages, they are removed from the
+folder's database, but not from the mbox file.
+So compaction is the process by which the mbox file is rebuilt, without
+the deleted messages.
+We also use the compaction process as an opportunity to add/update
+X-Mozilla-* headers, which local folders add to messages to store a
+copy of the message flags and keywords. It's debatable whether or
+not this is a good idea (it's duplicate information, held in the
+message database), but for now it's still there.
+
+## A summary of problems with the current code:
+
+- There are multiple code paths, dependent on folder type:
+  - For IMAP folders it iterates through each message and gets the
+    raw data using nsIMsgMessageService.streamMessage().
+  - For local folders it issues a single up-front
+    nsIMsgMessageService.copyMessages().
+- Shonky error handling/recovery.
+  - Cleanup/rollback is not always correct. A lot of functions just
+    don't clean up after themselves if they fail.
+  - There are multiple places where cleanup is attempted, and it's
+    very hard to tell if there are cases which slip through the cracks.
+- GUI code (progress/status updates, error alerts) is mixed in with
+  the core logic.
+- The code is over-complicated:
+  - There's no separation of responsibility between msgStore, folder
+    and database - The same code handles both database updates,
+    folder updates and mbox rewriting.
+  - IMAP expunge and Local folder db rebuild ("repair folder") are
+    tangled up with the compaction.
+  - Core compaction logic is complicated by handling multiple folders.
+- It's not always clear when the "I'm finished" listener callback
+  will be called.
+  - It's an async operation, but in some cases the listener callback
+    might be called synchronously - i.e. before the compact()
+   function returns.
+
+So this bug is a fresh attempt to sort it all out properly.
+
+## Overall approach
+
+- Decouple mbox compaction part from the folder update part, in line
+  with Bug 1714472 [2].
+- Be rigorous about error handling and cleanup/rollback.
+- Keep all the GUI code in one place.
+  - Pass information back upward, to avoid direct GUI calls from the
+    lower levels.
+- Be _very_ clear about the working of asynchronous functions:
+  - Guarantee that no listener callbacks will be invoked until
+    _after_ the initiating function returns.
+  - Guarantee that no listener callbacks will be invoked if the
+    initiating function fails.
+- Unify the code path for the different folder types (IMAP, local).
+  - There are differences, but they are minor.
+
+
+## New Implementation
+
+At the higher level, there's still the nsIMsgFolder.compact() and
+.compactAll() calls which kick off a compaction. The IMAP
+implementation will handle doing an expunge before starting the
+compaction.
+
+Then they call a new global function AsyncCompactFolders(), which
+starts the compaction proper.
+Under the hood, there's a helper class, BatchCompactor, which has
+the list of folders to compact.
+This class is responsible for kicking of the compaction of each
+folder in turn, and handles all the GUI updates: progress bar,
+status messages and alert dialogs.
+
+FolderCompactor is the class used to compact a single folder.
+It decides which messages should be kept and is responsible for
+updating the message database (or rolling it back to it's original
+state if something goes wrong).
+
+The core mbox file compaction is delegated to a new method:
+nsIMsgPluggableStore.asyncCompact(). When called, this goes through
+each message in turn, asking the FolderCompactor if it should
+be kept or discarded. If kept, it'll tell the FolderCompactor about
+the messages new storeToken (which, for mbox, is the offset within
+the mbox file) and size (because patching the X-Mozilla-* headers
+can add or remove some bytes).
+asyncCompact() also handles rolling back the mbox file if anything
+goes wrong.
+
+There are comments in the proposed patch which explain it
+all better, but hopefully that gives a flavour of what I'm aiming at!
+Please feel free to poke through the patch on phabricator - get to it
+via Bug 1890448 [1] - and tell me what's wrong with it!
+
+
+[1] Bug 1890448 - Rewrite folder compaction
+    https://bugzilla.mozilla.org/show_bug.cgi?id=1890448
+
+[2] Bug 1756520 - Simplify nsIMsgFolderCompactor implementations.
+    https://bugzilla.mozilla.org/show_bug.cgi?id=1756520
+
+[3] Bug 1714472 - [meta] Decouple nsIMsgPluggableStore from
+    nsIMsgFolder and nsIMsgDatabase.
+    https://bugzilla.mozilla.org/show_bug.cgi?id=1714472
+
+Thanks,
+Ben.
+
