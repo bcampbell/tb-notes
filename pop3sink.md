@@ -123,9 +123,26 @@ Called with a single line at a time.
 
 Just passes each line to the `nsParseNewMailState` parser, and writes it to `m_outFileStream`.
 
+### nsPop3Sink::IncorporateComplete()
+
+1. Set the nsIPop3Sink.messageUri attr.
+2. (bug workaround) Send a blank line to the parser to kick it into correct state.
+3. Flush the output stream.
+4. Reconciles the new message with any already existing one (header-only/partial)
+5. Call `FinishNewMessage()` on the msgStore, to commit it.
+6. Call `parser->PublishMsgHeader()`, then `parser->ApplyForwardAndReplyFilter()`.
+    - PublishMsgHeader() applies filter rules
+7. if there was a partial message which we're replacing with the full one:
+    1. Delete the old header from the DB
+    2. Send out a "message-content-updated" event. This is the only place in the code that sends "message-content-updated".
+8. Update the download progress. (`pop3Service->NotifyDownloadProgress()`).
+
+### nsPop3Sink::IncorporateComplete()
+
+Basically just calls `m_msgStore->DiscardNewMessage()` to roll back.
 
  
-`nsParseNewMailState` use by the nsPop3Sink:
+## `nsParseNewMailState` use by nsPop3Sink:
 
 
 nsPop3Sink::CheckPartialMessages() calls:
