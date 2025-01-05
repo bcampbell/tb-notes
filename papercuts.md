@@ -41,3 +41,7 @@ incorporateWrite() and incorporateBegin() affected. Easy fix.
 mbox outputstreams don't even support seeking.
 also close Bug 1308335
 
+
+# remove nsMsgLineBuffer and nsByteArray (post D233015)
+
+
