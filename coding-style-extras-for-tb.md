@@ -94,5 +94,7 @@ I _think_ the consensus is:
 - `thingURL` or `thingUrl`?
 - `msgID` or `msgId`?
 
+## Use grepable names.
+
 
 

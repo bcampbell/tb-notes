@@ -5,11 +5,14 @@ moz.build files in subdirs control which files are built
 
 # ctags setup
 
-in $HOME/.ctags:
+`universal-ctags` is probably the one to use.
+It's a maintained version of `exuberant-ctags`.
 
-    --langdef=idl
-    --langmap=idl:.idl
-    --regex-idl=/interface\s+([a-zA-Z0-9_]+)\s*:/\1/d,definition/
+in $HOME/.ctags.d/xpidl.ctags:
+
+    --langdef=xpidl
+    --langmap=xpidl:.idl
+    --regex-xpidl=/interface\s+([a-zA-Z0-9_]+)\s*:/\1/d,definition/
 
 [from: https://github.com/majutsushi/etc/blob/master/ctags]
 
