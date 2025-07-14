@@ -18,6 +18,8 @@ tests:
     $ hg push-to-try -s ssh://hg.mozilla.org/try-comm-central -m "try: -b do -p all -u all"
 ```
 
+https://developer.thunderbird.net/thunderbird-development/fixing-a-bug/try-server#try-syntax
+
 ## Try build with changesets from both M-C and C-C
 
 make sure the M-C try server alias is set up in M-C/.hg/hgrc:

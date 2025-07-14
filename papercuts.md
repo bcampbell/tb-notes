@@ -100,3 +100,21 @@ Only used once.
 
 Should take a nsACString in, and return priority, not error (it's infallible).
 
+## Strip back nsICopyMessageListener()
+
+For each message:
+1. BeginCopy()
+2. CopyData() as often as needed
+3. EndCopy()
+
+startMessage() and endMessage() seem pointless and unused.
+endMove() seems very inconsistant. eg Not called for imap -> local
+
+## Kill nsIMsgDatabase.sortNewKeysIfNeeded()
+
+It's silly.
+
+## Get rid of `nsImapMailFolder::m_filterList`.
+
+unnecessary duplication - it's held in nsIMsgIncomingServer.
+

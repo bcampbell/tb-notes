@@ -78,3 +78,34 @@ TODO: trace paths of:
 - TODO: note all hard-coded folder names
 - sort out/document abbreviatedPrettyName attr. Only used by news folders?
 
+
+### How folder naming _should_ work (maybe?)
+
+`nsIMsgFolder.name` should be the human readable name, as displayed to the user.
+Any valid UTF-8 string.
+That's it.
+
+The mapping to the name on the server and/or local filesystem should be defined by the protocol and nsIMsgPluggableStore respectively.
+
+There may be rules to massage/localise names, e.g. IMAP "INBOX" massaged to "Inbox" locally.
+That's up to the folder and protocol to sort out when the folder is created.
+
+There also need to be rules to handle the mapping in the other direction.
+e.g. if the user creates a folder with the name "I/O stuff", that needs to be mapped to a filesystem-safe name.
+
+
+
+`nsIMsgFolder.filePath` should be the _only_ place that exposes the filesystem-safe version of the name.
+
+I think `.name` should be the human readable name, any valid UTF-8 string (e.g. "Inbox", "I/O stuff", "LPT", whatever).
+
+The `.URI` path should consist of URL-escaped `.name` parts.
+
+`.filePath` should be a filesystem-safe path, likely derived from `.name` parts.
+
+Server-side mailbox names (IMAP/EWS/etc) should be dealt with by the folders/protocols - mapped to/from `.name` in some sensible (but protocol-specific way. e.g. for IMAP, the server-side path encoding depends on what separator the server has defined... and that _could_ change between sessions!). In any case, not something to be exposed in the base `nsIMsgFolder` interface.
+
+Not quite sure how `.prettyName` fits in... I'd guess there's some kind of auto localising that happens sometimes... where the "real" name of the folder isn't displayed, but instead a localised version eg `.name`="Trash" but `.prettyName` returns "Garbage" when you switch to American, or "Rubbish" for British (but folder is really called "Trash" all the time).
+Maybe?
+
+
