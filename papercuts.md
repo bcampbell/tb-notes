@@ -118,3 +118,14 @@ It's silly.
 
 unnecessary duplication - it's held in nsIMsgIncomingServer.
 
+## Remove PLDHashTable use
+
+- nsMsgDatabase headercache (Bug 1417018)
+- nsBayesianFilter.cpp
+
+
+## remove nsMsgIncomingServer::mFilterPlugin
+
+See GetSpamFilterPlugin().
+Uses `do_GetService()` - it's a singleton?
+
