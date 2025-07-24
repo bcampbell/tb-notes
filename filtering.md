@@ -86,7 +86,9 @@ classDiagram
   }
 ```
 
-## Filter Plugins
+## Spam classification
+
+https://support.mozilla.org/en-US/kb/thunderbird-and-junk-spam-messages
 
 - Spam filter is the only plugin?
 - What about extensions?
@@ -99,6 +101,54 @@ classDiagram
   - nsMsgDBView junk/unjunk commands
   - nsImapMailFolder::GetShouldDownloadAllHeaders()
     to determine if we need all the rfc822 headers, not just a subset.
+
+Conclusion: nsMsgDBFolder::CallFilterPlugins() is the place which does spam classification.
+
+### nsBayesianFilter
+
+- the only implementation of nsIJunkMailPlugin (and nsIMsgFilterPlugin). 
+- also implements nsIMsgCorpus
+  - corpus stored in `training.dat` and `traits.dat`.
+
+
+
+### nsMsgDBFolder::CallFilterPlugins()
+
+These member variables are set up in `CallFilterPlugins()`, then used by `OnMessageClassified()`callback:
+
+- `mBayesJunkClassifying`
+- `mBayesTraitClassifying`
+- `mPostBayesMessagesToFilter` - list of messages to run PostPlugin filters (once classification complete).
+
+Other relevant member vars:
+
+- `mClassifiedMsgKeys`
+   - tracks classified messages over multiple OnMessageClassified() calls.
+   - THIS IS NEVER CLEARED!? Should be cleared before callin classifyTraitsInMessage() maybe?
+- `m_saveNewMsgs` - retains messages lost by ClearNewMessages()
+
+
+Steps:
+
+- Bails out if folder is locked
+- Decides if folder should have spam filter run on it (not on rss or newsgroup, not Junk/Trash, etc...)
+- Decides if trait processing is needed
+  - checks the trait service, to see if proindices other than `nsIJunkMailPlugin.JUNK_TRAIT` are enabled.
+- check the filter list for `nsMsgFilterType::PostPlugin` filters.
+- get the list of new messages to consider
+  - database holds an in-memory list of "new" messages (definition of "new" a little fuzzy)
+  - but UI can clear the db new list, so folder maintains `m_saveNewMsgs` too...
+- does a lot of fiddling with processingflags to mark messages for processing...
+- calls nsIJunkMailPlugin.classifyTraitsInMessage()
+   - invokes callbacks.
+   - definitely nsIJunkMailClassificationListener.onMessageClassified()
+   - maybe also nsIMsgTraitClassificationListener.onMessageTraitsClassified()???
+
+IDEA:
+Maybe nsIJunkMailClassificationListener should have an onDone() callback too.
+(or even onStart() as well for completeness)
+ 
+### Classes
 
 
 ```{mermaid}
@@ -159,8 +209,6 @@ classDiagram
   -`nsImapMailFolder::HeaderFetchCompleted()` if filter list doesn't require message body.
   -`nsImapMailFolder::NormalEndMsgWriteStream()` if filter list does require body.
      - called after invoking `filterList->ApplyFiltersTohdr()`
-
-
 
 `filterList->ApplyFiltersToHdr()` called by:
   - `nsImapMailFolder::NormalEndHeaderParseStream()` if filter list doesn't require body.

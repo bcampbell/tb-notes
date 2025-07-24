@@ -129,3 +129,12 @@ unnecessary duplication - it's held in nsIMsgIncomingServer.
 See GetSpamFilterPlugin().
 Uses `do_GetService()` - it's a singleton?
 
+## remove nsIJunkMailPlugin.classifyTraitsInMessage()
+
+Only used in tests.
+Use classifyTraitsInMessages() instead?
+
+## remove nsIJunkMailPlugin.classifyMessages()?
+
+unused.
+Could also simplify MessageClassifier? (underlying mechanism)
