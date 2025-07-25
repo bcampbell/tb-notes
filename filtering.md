@@ -45,7 +45,7 @@ TODO: how does this high-level interface deal with non-offline messages with bod
 
 ### "Low level" invocation
 
-The protocol-specific folder classes don't use the high-level filter methods for to incoming messages.
+The protocol-specific folder classes don't use the high-level filter methods for incoming messages.
 Instead, they invoke `nsIMsgFilterList.applyFiltersToHdr()` upon each new message in turn as it arrives.
 
 The filtering might be done upon receipt of just the message headers, or it might be deferred until the whole message has been downloaded (depends on the search terms).
@@ -93,8 +93,8 @@ Loose ends (TODO):
 - There is server-side spam filter support. How does this work? Is it used?
 
 `nsMsgDBFolder::CallFilterPlugins()` called by:
-  -`nsImapMailFolder::HeaderFetchCompleted()` if filter list doesn't require message body.
-  -`nsImapMailFolder::NormalEndMsgWriteStream()` if filter list does require body.
+  - `nsImapMailFolder::HeaderFetchCompleted()` if filter list doesn't require message body.
+  - `nsImapMailFolder::NormalEndMsgWriteStream()` if filter list does require body.
      - called after invoking `filterList->ApplyFiltersTohdr()`
 
 `filterList->ApplyFiltersToHdr()` called by:
@@ -289,38 +289,23 @@ There are flags, but best to think of it as a sets of messages: "these messages 
 
 The sets are defined as nsMsgProcessingFlags, in `nsMsgMessageFlags.idl`:
 
-`ClassifyJunk` - needs junk classification
-`ClassifyTraits` - needs traits classification
-`TraitsDone` - completed any needed traits classification
-`FiltersDone` - completed any needed postPlugin filtering
-`FilterToMove` - has a move scheduled by filters
-`NotReportedClassified` - new to folder and has yet to be reported via the msgsClassified notification.
+- `ClassifyJunk` - needs junk classification
+  - set by `nsMsgDBFolder::CallFilterPlugins()` on all new messages which are slated for spam classification.
+  - cleared in `nsMsgDBFolder::OnMessageClassified()`
+  - seems a bit redundant...
+- `ClassifyTraits` - needs traits classification
+- `TraitsDone` - completed any needed traits classification
+- `FiltersDone` - completed any needed postPlugin filtering
+  - used _only_ in `nsMsgDBFolder::CallFilterPlugins()`.
+  - set when message is queued for post-bayes filtering, but *never* cleared.
+- `FilterToMove` - has a move scheduled by filters
+  - set when message queued to be deleted or moved to another folder by filter action.
+  - used in IMAP & local folders (`OnMessageClassified()` handler) to prevent moving messages to spam folder when already queued for moving by a filter.
+- `NotReportedClassified` - new to folder and has yet to be reported via the msgsClassified notification.
+  - nsImapMailFolder::NormalEndHeaderParseStream() sets this on all newly-downloaded messages (unless they've been moved by a filter before classification).
 
 Separately the folder also maintains a set of new messages.
 But there were issues with messages being classified twice, hence the later addition of `NotReportedClassified`.
 
-### `ClassifyJunk`
-
-- set by `nsMsgDBFolder::CallFilterPlugins()` on all new messages which are slated for spam classification.
-- cleared in `nsMsgDBFolder::OnMessageClassified()`
-- seems a bit redundant...
-
-### `ClassifyTraits`
-
-### `TraitsDone`
-
-### `FiltersDone`
-
-- used _only_ in `nsMsgDBFolder::CallFilterPlugins()`.
-- set when message is queued for post-bayes filtering, but *never* cleared.
-
-### `FilterToMove`
-
-- set when message queued to be deleted or moved to another folder by filter action.
-- used in IMAP & local folders (`OnMessageClassified()` handler) to prevent moving messages to spam folder when already queued for moving by a filter.
-
-### `NotReportedClassified`
-
-- nsImapMailFolder::NormalEndHeaderParseStream() sets this on all newly-downloaded messages (unless they've been moved by a filter before classification).
 
 
