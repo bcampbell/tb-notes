@@ -71,3 +71,15 @@ What is the policy on default folders for various servers?
 - Non-local folders shouldn't have msgStore set (eg Virtual folders, online-only IMAP, etc). (from Bug 1533624).
 
 
+## Simultaneous copy operations
+
+[source](https://bugzilla.mozilla.org/show_bug.cgi?id=1980509#c3)
+
+To be fair, it's probably Okay-ish to use nsIMsgFolder.copyMessages().
+It's the core thing for copying messages into the folder from some other folder, and it's a pretty solid interface and should be well defined (overlooking awfulness of taking an nsIMsgWindow, and the innappropriateness of taking nsIMsgCopyServiceListener as the listener! :-).
+
+nsIMsgCopyService really just adds a copy queue on top of that and tries to civilize things.
+But that's only needed because the folder copyMessage() implementations are all a bit shonky.
+There's no fundamental reason why a folder could not have simultaneous copies to it all happening at once. If the folder really does have some core serial property to it (eg writing to an mbox), then it should be able to hold up multiple copies and serialize them, the callers being none the wiser. We've got async support (via the listener) so we should be taking advantage of that.
+(Just a thought for when we start thinking about refactoring the folder/protocol stuff, post-ews)
+

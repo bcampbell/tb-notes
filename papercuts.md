@@ -138,3 +138,47 @@ Use classifyTraitsInMessages() instead?
 
 unused.
 Could also simplify MessageClassifier? (underlying mechanism)
+
+
+## Get rid of `aGenerateDummyEnvelope` param in `nsIMsgMessageService.saveMessageToDisk()`
+
+Might get a bit involved... but shouldn't be needed.
+The only case where is _could_ be needed would be when appending to an mbox, saveMessageToDisk() almost certainly doesn't do From- quoting, so will be useless for that task anyway!
+
+## nsIMsgFilterList.idl + nsMsgFilterList
+
+- Add `readonly Array<nsIMsgFilter> filters`.
+- Ditch the cumbersome filterCount/getFilterAt().
+- Ditch setFilterAt() (only used internally).
+
+## nsIMsgFilter.getCustomAction() can fail if custom actions aren't initialised.
+
+- stupid api.
+
+## "FiltersApplied" FolderEvent never used? Remove?
+
+grep for "FiltersApplied"
+
+## Inline nsMsgDBFolder::(Start|End)NewOfflineMessage() in IMAP and news.
+
+Not used anywhere else.
+Also means we can ditch `nsMsgDBFolder` members:
+
+- `m_tempMessageStream`
+- `m_tempMessageStreamBytesWritten`
+- `m_numOfflineMsgLines`
+- `m_bytesAddedToLocalMsg`
+
+## rename nsIImapMessageSink.parseAdoptedMsgLine() aAdoptedMsgLine param
+
+- it's used for any number of lines.
+
+## remove nsIImapMessageSink.parseAdoptedMsgLine() aImapUrl param
+
+- it's not used/needed.
+
+## ditch appendDummyEnvelope in setupMsgWriteStream().
+
+- used by template saving (mailbox: protocol)... but probably shouldn't be?
+- also ditch nsIMsgMailNewsUrl.AddDummyEnvelope attr
+
