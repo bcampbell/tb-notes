@@ -182,3 +182,11 @@ Also means we can ditch `nsMsgDBFolder` members:
 - used by template saving (mailbox: protocol)... but probably shouldn't be?
 - also ditch nsIMsgMailNewsUrl.AddDummyEnvelope attr
 
+
+## nsIMsgFolder.downloadMessagesForOffline() is dead code?
+
+- folder DownloadMessagesForOffline() functions are only called from nsMsgDBView, in response to a "Download selected messages". Is this ever exposed?
+- the autosync stuff uses nsIImapService.downloadMessagesForOffline().
+- nsImapMailFolder::DownloadMessagesForOffline() just calls nsIImapService.downloadMessagesForOffline(), but wraps it with a semaphore.
+
+
