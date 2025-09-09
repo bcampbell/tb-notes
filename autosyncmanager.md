@@ -1,37 +1,36 @@
-# IMAP sync notes
+# AutoSync Manager notes
 
 
-```{mermaid}
-classDiagram
+There's a global nsIAutoSyncManager service which handles downloading messages for offline use.
+It also can perform periodic checks for new messages.
 
-  class nsIImapOfflineSync {
-    <<Interface>>
-  }
+You can log its activity with `MOZ_LOG="IMAPAutoSync:5"`.
 
+It maintains a prioritised queue of folders that need checking/downloading.
+For each folder it maintains a prioritised list of messages which need downloading.
 
-  nsIImapOfflineSync <|-- nsImapOfflineSync
-  nsImapOfflineSync <|-- nsImapOfflineDownloader
-```
+It takes actions in response to:
+- new messages arriving i.e. the folder has downloaded new message headers and added them to the database.
+- a periodic timeout
+- idle times
 
-- nsImapOfflineSync
-  - plays back operations that occured while offline.
-  - includes folder creation.
+The actions it can perform:
+- check with the server to see if a folder has new messages
+- tell the folder to fetch new messages from the server
+- download a batch of messages to add to the local message store for offline use.
+  - the batches are decided based on a size threshold.
 
+The folder state is represented by `nsIAutoSyncState`.
+Each folder which wants to participate in AutoSync provides an `nsIAutoSyncState` object and registers it with the `nsIAutoSyncManager`.
 
-- nsImapOfflineDownloader
-  - ctor pauses the nsIAutoSyncManager.
+NOTE: don't get the AutoSync interfaces mixed up with `nsIImapOfflineSync` and `nsImapOfflineDownloader`.
+Those are red herrings, concerned with playing back operations that occurred on IMAP folders while offline.
 
+## Implementation
 
+The two concrete C++ classes are `nsAutoSyncManager` and `nsAutoSyncState`.
 
-
-
-## nsIAutoSyncManager
-
-
-nsAutoSyncManager is a service (i.e. global singleton).
-
-It maintains lists of folders which need attention.
-
+They are pretty tightly coupled, and a lot of the interface methods are concerned with coordinating with each other, which makes using them quite confusing.
 
 ```{mermaid}
 classDiagram
@@ -73,20 +72,20 @@ classDiagram
 
 - no Strategy implementations other than the default ones
 
-### `.onDownloadQChanged()`
 
-- called by nsAutoSyncState::PlaceIntoDownloadQ().
+### nsIAutoSyncManager
+
+`.onDownloadQChanged()`
+  - called by nsAutoSyncState::PlaceIntoDownloadQ().
 
 
-
-
-## nsIAutoSyncState
+### nsIAutoSyncState
 
 - Implemented solely by nsAutoSyncState.
 - Represents one folder in the autosync system
 - maintains a message queue: messages in the folder which need downloading.
 
-### States
+#### States
 
 `stCompletedIdle`
 - This state indicates we're idle, nothing happening with this folder right now.
@@ -124,7 +123,7 @@ classDiagram
 - set by nsAutoSyncState::DownloadMessagesForOffline()
 
 
-### the download queue
+#### the download queue
 
 - list of messages to download for the folder.
 - Fed by:
@@ -135,13 +134,15 @@ classDiagram
 
 - cleared in nsIAutoSyncState.resetDownloadQ()
 
-### `PlaceIntoDownloadQ()` (helper)
+#### Assorted functions:
+
+`PlaceIntoDownloadQ()` (helper)
 
 - called by:
   - `nsAutoSyncState::ProcessExistingHeaders()`
   - `nsAutoSyncState::OnNewHeaderFetchCompleted()`
 
-### .getNextGroupOfMessages()
+`.getNextGroupOfMessages()`
 
 - used solely by nsAutoSyncManager::DownloadMessagesForOffline().
 - Grabs the next batch of messages to download from the queue.
@@ -149,22 +150,25 @@ classDiagram
   - are no longer in the database (might have been deleted)
   - are already stored offline (eg user viewing a message before autosync starts).
 
-### OnNewHeaderFetchCompleted()
+`.OnNewHeaderFetchCompleted()`
 - called only from `nsImapMailFolder::HeaderFetchCompleted()`.
 - not part of public nsIAutoSyncState interface.
 - folder has concrete nsAutoSyncState object.
 
 
-## nsIAutoSyncMgrListener
+### nsIAutoSyncMgrListener
 
-onDownloadStarted
-onDownloadCompleted
+I think this is mainly used to drive the activity manager in the GUI, so the status bar shows something when autosync operations are in progress...
 
+See `autosync.sys.mjs`.
 
+`.onDownloadStarted()`
 
+`.onDownloadCompleted()`
+- called by nsAutoSyncState at end downloading a batch.
+  - it'll decide what to download next? Confirm!
 
 ## Papercuts
-
 
 deCOMtamination:
 
@@ -199,6 +203,9 @@ DEAD CODE:
 possibly dead code?
 - folder DownloadMessagesForOffline() functions are only called by msg View, in response to a "Download selected messages". Is this ever exposed?
 
+- nsAutoSyncState::DownloadMessagesForOffline() and nsAutoSyncState::GetNextGroupOfMessages() are only ever called from 
+nsAutoSyncManager::DownloadMessagesForOffline()?
+  - combine, simplify...
 
 
 ## Add EWS support
@@ -235,7 +242,7 @@ EwsFolder doesn't (yet) have the concept of pending messages (where we know ther
 
 
 
-### Folder -> AutoSync interaction:
+## Folder -> AutoSync interaction:
 
 nsImapMailFolder knows about concrete nsAutoSyncState class, so can bypass xpcom.
 
