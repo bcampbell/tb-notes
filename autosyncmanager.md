@@ -96,14 +96,22 @@ classDiagram
   - to handle corner case where an update is triggered but there's nothing to download.
 
 `stStatusIssued`
-- set from folder, in `nsImapMailFolder::InitiateAutoSync()`
+- Set by `nsImapMailFolder::InitiateAutoSync()`.
+- This state indicates that we've issued a STATUS (or NOOP for selected fmailbox) and are waiting for results.
+  - this updates the Total, Unseen and Recent message counts for the nsImapMailFolder (as well as NextUID etc).
+  - It's not clear what "Recent" messages are.
+- when the STATUS completes, nsAutoSyncState::OnStopRunningUrl() handles it
+  - if the total or recent counts (or nextUID) are unchanged, go back into `stCompletedIdle` state.
+  - if counts have changed, call UpdateFolder() and go straight into the `stUpdateIssued` state.
 
 `stUpdateNeeded`
- - set in `nsAutoSyncManager::OnFolderHasPendingMsgs()`,
- - indicates a folder has been added to syncstates updateQ.
- - manager then calls `OnFolderAddedIntoQ()` notification.
+ - Indicates a folder has been added to syncstates updateQ.
+ - Set by `nsAutoSyncManager::OnFolderHasPendingMsgs()`,
+ - Manager then calls `OnFolderAddedIntoQ()` notification.
 
 `stUpdateIssued`
+ - Indicates that an UpdateFolder() is in progress.
+    - i.e. we're downloading message headers.
  - Always set by nsAutoSyncState:
   - in UpdateFolder()
   - in OnStopRunningUrl()
@@ -179,6 +187,9 @@ In nsIAutoSyncManager interface, but only ever called by nsAutoSyncState:
 
 
 - nsAutoSyncManager::DoesMsgFitDownloadCriteria() should be moved into nsAutoSyncState. (only usage is in PlaceIntoDownloadQ()).
+  - should just call `folder->ShouldStoreMsgOffline()` instead.
+  - Should merge nsMsgDBFolder::MsgFitsDownloadCriteria() and ShouldStoreMsgOffline().
+
 
 SHOULD BE LOCAL:
 nsAutoSyncState::Rollback()
