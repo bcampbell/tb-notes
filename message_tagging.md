@@ -28,7 +28,7 @@ The server includes the `key` in the message metadata it sends to the client.
 
 The client sends the `key` to the server when tagging or untagging messages.
 
-If the user creates a new tag, `key` is derived from the human-readable name by lowercasing them and replacing characters special to IMAP with underscores.
+If the user creates a new tag, the `key` is derived from the human-readable name by lowercasing it and replacing special characters underscores.
 e.g. `Important Stuff` becomes `important_stuff`.
 
 The local database maintains tags on nsIMsgDBHdr objects in the `keywords` property, a space-separated list of `key` strings.
@@ -48,4 +48,16 @@ So any tags used on the server which aren't defined on the client are just not d
 An attempt is made to store assigned tags in the sneakily-added local `X-Mozilla-Keys` header.
 There is not always enough room to do this. It tries to edit the local message data in-place, so the information may not appear until the next folder compaction.
 Compaction re-writes the message data and so the opportunity to create any extra space required.
+
+## JMAP
+
+Messages on a JMAP server have a `keywords` field which looks to be very compatible with IMAP.
+
+## EWS
+
+Messages on an EWS server have a `categories` property, which is a list of strings.
+
+The rules for valid tag keys in EWS are likely to be different - for example, EWS probably allows categories with spaces in them, whereas IMAP does not.
+
+
 
