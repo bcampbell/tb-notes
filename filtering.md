@@ -314,8 +314,10 @@ The sets are defined as nsMsgProcessingFlags, in `nsMsgMessageFlags.idl`:
 - `FilterToMove` - has a move scheduled by filters
   - set when message queued to be deleted or moved to another folder by filter action.
   - used in IMAP & local folders (`OnMessageClassified()` handler) to prevent moving messages to spam folder when already queued for moving by a filter.
-- `NotReportedClassified` - new to folder and has yet to be reported via the msgsClassified notification.
-  - nsImapMailFolder::NormalEndHeaderParseStream() sets this on all newly-downloaded messages (unless they've been moved by a filter before classification).
+- `NotReportedClassified` - new to folder, and has yet to be reported via the msgsClassified notification.
+  - IMAP and NNTP have broadly similar behaviour:
+    - nsImapMailFolder::NormalEndHeaderParseStream(), NntpNewsGroup.sys.mjs
+    - sets NotReportedClassified when adding msgHdrs to database, unless they've been moved by a filter before classification.
 
 Separately the folder also maintains a set of new messages.
 But there were issues with messages being classified twice, hence the later addition of `NotReportedClassified`.

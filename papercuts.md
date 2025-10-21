@@ -189,4 +189,7 @@ Also means we can ditch `nsMsgDBFolder` members:
 - the autosync stuff uses nsIImapService.downloadMessagesForOffline().
 - nsImapMailFolder::DownloadMessagesForOffline() just calls nsIImapService.downloadMessagesForOffline(), but wraps it with a semaphore.
 
+## Usused nsIMsgBiffManager.forceBiff() and forceBiffAll()
+
+## Better comments on EwsIncomingServer::Sync* functions
 

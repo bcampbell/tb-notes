@@ -26,6 +26,20 @@ Each folder which wants to participate in AutoSync provides an `nsIAutoSyncState
 NOTE: don't get the AutoSync interfaces mixed up with `nsIImapOfflineSync` and `nsImapOfflineDownloader`.
 Those are red herrings, concerned with playing back operations that occurred on IMAP folders while offline.
 
+
+## Questions
+
+1. When does autosync run, and what does it do?
+   Does stuff upon:
+   - timer callback
+   - idle callback
+   - calls to nsAutoSyncManager::OnFolderHasPendingMsgs()
+   - calls to nsAutoSyncState::OnNewHeaderFetchCompleted()
+   - other?
+2. What notifications does it issue?
+   - eg to activitymanager
+
+
 ## Implementation
 
 The two concrete C++ classes are `nsAutoSyncManager` and `nsAutoSyncState`.
