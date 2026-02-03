@@ -87,7 +87,7 @@ Rationale: A failing returncode should be considered as if an exception had been
 
 I _think_ the consensus is:
 - Drop the `ns` prefix for concrete classes.
-- Keep `nsI` for interfaces.
+- Keep `nsI` for interfaces. Or just use `I`! Are there actually any concrete arguments for using `nsI`?
 
 ## Capitalisation for acronyms
 
@@ -96,5 +96,9 @@ I _think_ the consensus is:
 
 ## Use grepable names.
 
+Within reason.
 
+## Listener callback implementations should be in the same file as the kick-off call.
+
+i.e. a reader should be able to understand the flow of control without having to jump to any other file.
 
