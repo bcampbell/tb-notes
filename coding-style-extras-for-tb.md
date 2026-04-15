@@ -102,3 +102,17 @@ Within reason.
 
 i.e. a reader should be able to understand the flow of control without having to jump to any other file.
 
+## TODOs
+
+All `TODO` comments in code should either:
+1. Include a link to a bug following them up.
+2. Be short lived, removed within a few days by a followup patch within the same block of work.
+
+## All listener methods should be available without QIing
+
+The listener param in a method in the IDL file should describe all the callback functions.
+There should never be an expectation that the listener should implement some other interface not specified there.
+
+Discussion:
+https://thunderbird.topicbox.com/groups/developers/T6831b7747cca7758/qiing-listeners-in-iexchangeclient
+
