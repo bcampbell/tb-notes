@@ -5,6 +5,7 @@ It'd be nice to have a solid set of tests that cover all the main operations, wh
 
 All the standard stuff:
 - folder naming/renaming
+- folder creation/deletion
 - moving/copying messages
 - moving/copying folders
 - deleting and move-to-trash
@@ -23,6 +24,6 @@ One approach to this:
 - adapt existing tests where reasonable, else write protocol-neutral replacements.
 - delete obsolete tests, leaving ones which genuinely test protocol-specific features.
 
-
-
-
+Prerequisites:
+- Common (async) folder interface, no icky special cases like CreateLocalFolder().
+- Common fakeserver interface (so we can set up tests independent of protocols)
