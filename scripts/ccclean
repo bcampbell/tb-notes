@@ -1,0 +1,38 @@
+#!/bin/bash
+# ccclean - clean up leftover cruft files (".orig" etc...) in current hg repo.
+#
+# Use -n for dry run - just prints names of the files which would be deleted.
+
+set -e
+
+usage() { echo "Usage: $0 [-n]" 1>&2; exit 1; }
+
+repo="$(hg root)"
+pushd "$repo" >/dev/null
+
+dryrun=false
+while getopts "n" opt; do
+    case "$opt" in
+    n)  dryrun=true
+        ;;
+    *)  usage
+        ;;
+    esac
+done
+shift $((OPTIND-1))
+
+# find all untracked .orig files
+doomed=$(hg status -u -T "{path}\n" | grep "[.]orig$")
+
+if [ "$dryrun" = true ]; then
+    for f in $doomed; do
+        echo "$f"
+    done
+else
+    for f in $doomed; do
+        rm "$f"
+    done
+    
+fi
+
+popd >/dev/null
