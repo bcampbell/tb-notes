@@ -27,18 +27,15 @@ done
 shift $((OPTIND-1))
 
 if [ -z "$rev" ]; then
-    # no revision - use locally-modified files.
-    changed="$(hg status -m -a -n)"
-else
-    # get files modified by specific changeset
-    changed="$(hg status -m -a -n --change $rev)"
+    rev="@"
 fi
 
+changed="$(jj diff -r $rev --name-only)"
 
 for f in $changed
 do
-    echo "../mach commlint \"$f\""
-    ../mach commlint "$f"
+    echo "../mach commlint \"$f\" -W"
+    ../mach commlint "$f" -W
 done
 
 popd >/dev/null

@@ -193,3 +193,4 @@ Also means we can ditch `nsMsgDBFolder` members:
 
 ## Better comments on EwsIncomingServer::Sync* functions
 
+## Remove nsImapMailFolder::LiteSelect() (trivial and only used once)
